@@ -43,13 +43,11 @@ $ apt update && apt upgrade -y && apt install -y git unzip
 
 
 # Run:
-$ git clone https://github.com/hellresistor/BitCanna-Install.git && chmod 770 -R BitCanna-Install && ./BitCanna-Install/BCNA-Install.sh
+$ git clone https://github.com/hellresistor/BitCanna-Installer.git && chmod 770 -R BitCanna-Installer && ./BitCanna-Installer/BCNA-Install.sh
 
-Or
-
-$ wget https://raw.githubusercontent.com/hellresistor/BitCanna-Install/master/BCNA-Installer.sh && chmod 700 BCNA-Installer.sh  && ./BCNA-Installer.sh
 
 # $ Please, Check all code! Don't judge me before you have read it! So much work done here, some respect would be nice $
+ 
  
 # Support donating:
 If you like this script and/or it saved you a lot of time
@@ -58,7 +56,7 @@ BCNA Address:  B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv
 
 # 420 Time
 With many 420 times and dedication
-I hope all Bitcanna Team members-Devs-Supporters-Investors-Consumers-Community members enjoy this script. And have a good reduce on THC use :P
+I hope all Bitcanna Team members-Devs-Supporters-Investors-Consumers-Community members enjoy this script. And have a good reduction on THC use :P
 I am grateful to/get help/ed with knowledgement contribution and re-distribution!
 
 # Contributions
