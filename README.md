@@ -1,3 +1,8 @@
+# FOUND URGENT ISSUE 
+# NOT USE THIS. OR USE THIS WITH VERY PRECAUTION!!!!!
+
+# I AM WORKING ON THESE! THANK YOU
+
 # BCNA Install Script
 
 This is a Contribuition Script! It is not official or developed by the Bitcanna.io Team!
