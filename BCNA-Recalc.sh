@@ -1,43 +1,35 @@
 #!/bin/bash
-##
-## Hellresistor tool to Recalculate SplitStakeThreshold
-## Ver: 19.12.21
-##
-## Formula math by @Johnny_X89 and banana1 THANK YOU!
-##
+# ------------------------------------------------------
+# Bitcanna Community - Recalculate SplitStakeThreshold
+# Ver: 1.18
+# ------------------------------------------------------
+# Formula math by: @Johnny_X89
+# ------------------------------------------------------
 
-cat<<EOF
-##############################
-##  THIS WILL RECALCULATE   ##
-##   YOUR BALANCE TO BEST   ##
-##   Stake Split Threshold  ##
-##############################
-EOF
-read -p "YOU WANT CONTINUE? Press any key"
-bitcanna-cli autocombinerewards false
-
+echo -e "$'\e[0m'$'\e[48;5;250m'$'\e[90m'"
+clear
+echo -e "$'\e[38;5;34m'    THIS WILL RECALCULATE\\n    YOUR BALANCE TO BEST\\n    Stake Split Threshold\\n\\n$'\e[0m'$'\e[48;5;250m'$'\e[90m$'\e[38;5;214m''in 3 seconds ..."
+sleep 3
 MyBal=$(bitcanna-cli getbalance)
 MyBalR=$(echo "$MyBal" | awk '{printf("%d\n",$1 + 0.5)}')
-
-MYSTAKE=$(awk -v m=$MyBal 'BEGIN { print 1 + (((m / 1000) * 250) / 4.8) }') ## banana1 formula
-# MYSTAKE=$(awk -v m=$MyBal 'BEGIN { print 1 + (((m / 1000) * 250) / 1.2) }') ## Johnny_X89 formula
-
+MYSTAKE=$(awk -v m="$MyBalR" 'BEGIN { print 1 + (((m / 1000) * 250) / 1.2) }')
 MYSTAKER=$(echo "$MYSTAKE" | awk '{printf("%d\n",$1 + 0.5)}')
-MYSPLIT=$(awk -v m=$MYSTAKE 'BEGIN { print 1 + (m / 2) }')
+MYSPLIT=$(awk -v m="$MYSTAKE" 'BEGIN { print 1 + (m / 2) }')
 MYSPLITR=$(echo "$MYSPLIT" | awk '{printf("%d\n",$1 + 0.5)}')
 
-bitcanna-cli setstakesplitthreshold $MYSTAKER
-bitcanna-cli autocombinerewards true $MYSPLITR
+echo -e "  Stakes ReCalculated!\\n  ""$(date +"%d_%m_%Y")""\\n\\n       Balance: ""$MyBal""\\n       Stake: ""$MYSTAKER""\\n       Split: ""$MYSPLITR""\\n\\n"
+echo -e "\\nSure you want DEFINE this Stake Split Threshold? (Y/N)"
+read -r choiz
+if [ "$choiz" == "y" ] || [ "$choiz" == "Y" ]; then
+  bitcanna-cli autocombinerewards false
+  bitcanna-cli setstakesplitthreshold "$MYSTAKER"
+  #bitcanna-cli autocombinerewards true "$MYSPLITR"  # Remove comment on this line to Enable auto combine rewards
+  echo -e "  Stakes ReCalculated!\\n  ""$(date +"%d_%m_%Y")""\\n\\n       Balance: ""$MyBal""\\n       Stake: ""$MYSTAKER""\\n       Split: ""$MYSPLITR""\\n" > Recalc."$(date +"%Y%m%d%H%M%S")".log
+elif [ "$choiz" == "n" ] || [ "$choiz" == "N" ]; then 
+ echo -e "Bye $'\e[0m'" && sleep 0.3  && exit 1
+else
+ echo -e "SERIOUSLY!? Missed.. Bye! $'\e[0m'" && sleep 0.3 && exit 1
+fi
 
-cat<<EOF > Recalc.$(date +"%d_%m_%Y").log
-#################################
-##  Stakes ReCalculated DONE!  ##
-##  $(date +"%d_%m_%Y")
-#################################
-                             
-       Balance: $MyBal       
-       Stake: $MYSTAKER       
-       Split: $MYSPLITR       
-                             
-#################################
-EOF
+echo -e "DONE! $'\e[0m'"
+exit 0
