@@ -1,51 +1,63 @@
+[![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
+![LintCheck](https://github.com/hellresistor/BCNA-Installer/workflows/LintCheck/badge.svg?branch=master)
+[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
+
 # BCNA Install Script
 
 This is a Contribuition Script! It is not official or developed by the Bitcanna.io Team!
 
-NOTE: we are working in a upgrade script also
+All configurations are following the official [Bitcanna Guides](https://www.bitcanna.io/guides) 
 
-All configurations are following the official Bitcanna Guides <https://www.bitcanna.io/guides/> 
-
-This script is prepared to install and configure a Bitcanna Masternode or Bitcanna Fullnode Wallet for stake (PoS) on a Linux Virtual Private Server (VPS) with Ubuntu 18.04 LTS Server.
+This script is prepared to install and configure a Bitcanna Masternode or Bitcanna Fullnode Wallet for stake (PoS) on a Linux Virtual Private Server (VPS) with Ubuntu Debian.
 
 This is one file script BCNA-Script.sh and ONLY run one time on the server!
 
 # !!!!ATTENTION!!!!!
 To Run the Masternode YOU NEED AT LEAST 100K (100.000) of BCNA (BitCanna Coins)!!
 
-Please, Read the BitCanna WhitePaper at https://www.bitcanna.io/whitepaper/
+Please, Read the [BitCanna Whitepaper](https://www.bitcanna.io/whitepaper)
 
 
-# STATUS: *V1.9.11.20*
+# STATUS: *V1.18*
+
+*New:*
+ - Add new BCNA-ExtractPeerList.sh Script 
 
 *BCNA-Script.sh Container:*
- - Download Lastest BCNA Unix version
+ - Install / Upgrade / Remove Lastest BCNA Unix version
+ - Detect if exist own wallet.dat
  - Choose Syncing by Network or Bootstrap
- - Configuration Bitcanna FullNode to Proof-of-Stake (see BCNA FullNode Guide)
- - Configuration Bitcanna MasterNode (see BCNA MasterNode Guide)
+ - Choose Bitcanna Wallet has Full-Node to Proof-of-Stake (see BCNA FullNode Guide)
+ - Choose Bitcanna Wallet has MasterNode (see BCNA MasterNode Guide)
  - Adding bitcanna AS BINary (just type: $ bitcannd OR $ bitcanna-cli )
- - Encrypt wallets with password/passphrase
+ - Encrypt wallet.dat with password/passphrase
  - Backup (wallet.dat + wallet address + dumpprivkey + wallet pass = WalletBackup.tar.gz)
- - Final Cleaning and Fresh Running
-
-*BCNA-Terminal-prep.sh Container:*
-  - Menu with some useful commands shortcuts (In dev..)
+ - Donate! ;)
 
 *BCNA-Recalc.sh Container:*
  - Get Balance
  - Calculate and Set SpliStakeThreshold
- - Calculate and Set AutoCombine
+ - Calculate and Set AutoCombine (if you Uncomment line)
+ 
+*BCNA-ExtractPeerList.sh Container:*
+ - Get List of Ip and Port of Connected nodes.
+ - Export and Sort into 'ExtractPeerList.txt' file.
 
 # Requirements: 
 
-For the best experience of this script, Recommended settins of the Putty Console Window should be: 
-Columns:90 Rows:35 (check in screenshots/0-PuttyConf.png)
+For the best experience, Should Set the Putty Console Window To: (check on screenshots)
+ - Columns:90
+ - Rows:35 
 
-$ apt update && apt upgrade -y && apt install -y git unzip 
+# Tested On:
+ - Ubuntu Server 18.04 LTS
+ - Debian 10.4
 
-
-# Run:
-$ git clone https://github.com/hellresistor/BitCanna-Installer.git && chmod 770 -R BitCanna-Installer && ./BitCanna-Installer/BCNA-Install.sh
+# Run as normal User (NOT ROOT):
+ ### You must CHANGE the value of the 'STAKE' variable to your need!
+ ### You will choose upload your "wallet.dat" file into $PWD directory, if not uploaded, will create a new "wallet.dat" file.
+    git clone https://github.com/hellresistor/BCNA-Installer.git
+    chmod -R +x BCNA-Installer && bash $PWD/BCNA-Installer/BCNA-Script.sh
 
 
 # $ Please, Check all code! Don't judge me before you have read it! So much work done here, some respect would be nice $
@@ -66,15 +78,14 @@ If you have any wishes for new features, please let me know or add them yourself
 (Thank you ALL to help to do this better)
 
 # Contact on
-Official Bitcanna Telegram Channel (https://t.me/joinchat/F4JfThITJB3cU-uaCwtKlQ)
+Official Bitcanna Channel on [Telegram](https://t.me/joinchat/F4JfThITJB3cU-uaCwtKlQ)
 
 # Extra
- Need a VPS to run your FullNode or MasterNode? (affiliate links below)
+ Need a VPS to run your FullNode or MasterNode?
 
-Time4VPS: https://www.time4vps.com/?affid=4335
+  - [Time4VPS](https://www.time4vps.com/?affid=4335)
 
  Need Get Some BitCanna To Staking or MasterNode?
 
-CoinDeal: https://coindeal.com/ref/AV4X
-
-Stex: https://app.stex.com/?ref=75177165
+ - [CoinDeal](https://coindeal.com/ref/AV4X)
+ - [Stex](https://app.stex.com/?ref=75177165)
