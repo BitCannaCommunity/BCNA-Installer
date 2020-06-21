@@ -10,7 +10,7 @@ readonly packages=( "unzip" )
 readonly BCNAREP="https://github.com/BitCannaGlobal/BCNA/releases/download"
 readonly GETLAST=$(curl --silent "https://api.github.com/repos/BitCannaGlobal/BCNA/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 readonly GETLASTBOOT=$(curl --silent "https://api.github.com/repos/BitCannaCommunity/Bootstrap/releases/latest" | grep -Po '"name": "\K.*?(?=.zip)')
-readonly BCNABOOT="https://github.com/BitCannaCommunity/Bootstrap/releases/download/v1/$GETLASTBOOT.zip"
+readonly BCNABOOT=$(curl --silent "https://api.github.com/repos/BitCannaCommunity/Bootstrap/releases/latest" | grep 'browser_' | cut -d\" -f4)
 readonly BCNAPKG="bcna-$GETLAST-unix"
 readonly BCNAHOME="$PWD"
 readonly BCNACONF=".bitcanna"
@@ -19,7 +19,7 @@ readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly VPSIP="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')"
-readonly SCRPTVER="V1.18"
+readonly SCRPTVER="V1.20"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
 dependencies(){
@@ -74,15 +74,15 @@ else
  echo -e "${red}ERROR on Extracting. Check extracted folder name structure${endc}" && sleep 0.5 && exit 1
 fi
 echo -e "${grey}--> ${bkwhite}Copy binaries to right place ${grey}!!\n${bkwhite}Enter ${grey}'${yellow}sudo password${grey}':\n"
-if sudo -nv 2>&1 | grep -q '^sudo:'; then
- sudo cp -f "$BCNADIR"/* /usr/bin
- sudo chmod +x /usr/bin/bitcanna* 
- echo -e "${grey}--> ${bkwhite}Downloaded and Extracted to${grey}: ${green}$BCNADIR${bkwhite}"
- sleep 0.5
-else
- echo -e "${red}ERROR${grey}!!! ${bkwhite}User:${yellow}$USER ${bkwhite}is not a sudoer user\nExiting...${endc}"
- sleep 0.5 && exit 1
-fi
+sudo cp -f "$BCNADIR"/* /usr/bin
+sudo chmod +x /usr/bin/bitcanna* 
+echo -e "${grey}--> ${bkwhite}Downloaded and Extracted to${grey}: ${green}$BCNADIR${bkwhite}"
+echo -e "${grey}--> ${bkwhite}Putting Bitcanna Community Scripts on right place ${grey}...\n${bkwhite}"
+mv "$BCNAHOME"/BCNA-Installer/BCNA-Console.sh "$BCNAHOME"/BCNA-Console.sh
+mv "$BCNAHOME"/BCNA-Installer/BCNA-ExtractPeerList.sh "$BCNAHOME"/BCNA-ExtractPeerList.sh
+chown "$USER" "$BCNAHOME"/BCNA-ExtractPeerList.sh
+chmod +r "$BCNAHOME"/BCNA-ExtractPeerList.sh
+sleep 0.5
 }
 choice(){
 if [ "$choiz" == "m" ] || [ "$choiz" == "M" ]; then 
@@ -107,7 +107,7 @@ else
 fi
 while true
 do 
- "$BCNACLI" getinfo && break || echo -e "${bkwhite}${yellow}Wait ${grey}...${bkwhite}";
+ "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${bkwhite}${yellow}Wait ${grey}...${bkwhite}";
  sleep 5
 done
 sleep 5
@@ -143,7 +143,7 @@ readonly choicc
 case "$choicc" in
  b|B) echo -e "${grey}--> ${bkwhite}Getting Bootstrap ${grey}...${bkwhite}"
   if [[ -n $(find ~ -name "$GETLASTBOOT.zip") ]]; then
-   echo -e "{$grey}--> ${green}Found $GETLASTBOOT.zip on local storage${bkwhite}"
+   echo -e "${grey}--> ${green}Found $GETLASTBOOT.zip on local storage${bkwhite}"
   else
    echo -e "${grey}--> ${bkwhite}Downloading $GETLASTBOOT.zip ${grey}...${bkwhite}" 
    wget "$BCNABOOT" -P "$BCNAHOME" > /dev/null 2>&1
@@ -200,7 +200,13 @@ if [ "$WALLETEXIST" -eq 0 ] ; then
  echo -e "${grey}--> ${green}Bitcanna wallet.dat Encrypted ${grey}!!!${bkwhite}\n\n"
  sleep 1
 elif [ "$WALLETEXIST" -eq 1 ] ; then
- echo -e "${bld}${green}Set PassPhrase for your wallet.dat${grey}:" && read -rsp "" WALLETPASS
+ WALLETPASS="dummy1"
+ WALLETPASSS="dummy2"
+ while [ "$WALLETPASS" != "$WALLETPASSS" ]
+ do
+  echo -e "${bld}${green}Put your wallet.dat PassPhrase${grey}:" && read -rsp "" WALLETPASS
+  echo -e "${bld}${yellow}Repeat your wallet.dat PassPhrase${grey}: ${bkwhite}" && read -rsp "" WALLETPASSS
+ done
  readonly WALLETPASS
 fi
 if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ; then
@@ -323,8 +329,6 @@ elif [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ; then
 else
  echo -e "\n${red}ERROR ${grey}!! ${red}Maybe someone has hacked this ${grey}:O${bkwhite}" && sleep 1 && echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}" && "$BCNACLI" stop && exit 1
 fi
-echo -e "\n${grey}--> ${blk}${bld}${bkwhite}Now Can LogOut!${bkwhite}\n"
-read -n 1 -s -r -p "Press any key to continue..."
 }
 backup(){
 echo -e "\n${grey}--> ${bkwhite}Backup Wallet Info ${grey}:${bkwhite}\n"
@@ -345,7 +349,7 @@ $RPCPWD
 EOF
 "$BCNACLI" backupwallet "$BCNAHOME"/BCNABACKUP/wallet.dat
 if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then cp -f "$BCNACONF"/masternode.conf "$BCNAHOME"/BCNABACKUP/masternode.conf; fi
-echo -e "$\n{bgrey}--> ${bkwhite}Compacting Files ${grey}...${bkwhite}\n"
+echo -e "\n${grey}--> ${bkwhite}Compacting Files ${grey}...${bkwhite}\n"
 tar -zcvf "$BCNAHOME"/WalletBackup.tar.gz "$BCNAHOME"/BCNABACKUP
 chmod 500 "$BCNAHOME"/WalletBackup.tar.gz
 echo -e "\n\n${grey}--> ${bkwhite}Info Wallet Backuped on${grey}:${green} $BCNAHOME/WalletBackup.tar.gz \n${yellow}                       ${grey}!!! ${yellow}PLEASE ${grey}!!!\n${red}       SAVE THIS FILE ON MANY DEVICES ON SECURE PLACE${bkwhite}\n"
@@ -363,6 +367,7 @@ if [[ ! -a $(find "/usr/bin" -name "$BCNAD") ]] ; then
   bcnadown
   choice
   final
+  console
  else
   echo -e "${grey}--> ${yellow}Detected Bitcanna wallet already installed!\n${grey}--> ${bkwhite}Please Run Update${endc}" && exit 1
  fi
@@ -370,7 +375,7 @@ elif [ "$choix" == "u" ] || [ "$choix" == "U" ]; then
   echo -e "${grey}--> ${bkwhite}Update to last version of Bitcanna wallet${grey}...${bkwhite}"
  if [[ -a $(find "/usr/bin" -name "$BCNAD") ]] ; then
    echo -e "${grey}--> ${green}Old Bitcanna version found!\n${grey}--> ${bkwhite}UPDATING Bitcanna${bkwhite}"
-   "$BCNACLI" stop > /dev/null 2>&1 || echo -e "${grey}--> ${yellow}Bitcanna Wallet is not Runningn${grey}...${bkwhite}"
+   "$BCNACLI" stop > /dev/null 2>&1 || echo -e "${grey}--> ${yellow}Bitcanna Wallet is not Running${grey}...${bkwhite}"
    sleep 5
    rm -R "$BCNADIR"
    sudo rm -f /usr/bin/bitcanna*
@@ -383,7 +388,7 @@ elif [ "$choix" == "u" ] || [ "$choix" == "U" ]; then
 elif [ "$choix" == "r" ] || [ "$choix" == "R" ]; then 
  if [[ -a $(find "/usr/bin" -name "$BCNAD") ]] ; then
    echo -e "${grey}--> ${yellow}Old Bitcanna version found!\n${grey}--> ${red}FULL REMOVING Bitcanna${bkwhite}" && sleep 0.5
-   "$BCNACLI" stop > /dev/null 2>&1 || echo -e "${grey}--> ${yellow}Bitcanna Wallet is not Runningn${grey}...${bkwhite}"
+   "$BCNACLI" stop > /dev/null 2>&1 || echo -e "${grey}--> ${yellow}Bitcanna Wallet is not Running${grey}...${bkwhite}"
    sleep 5
    cp -f -r --preserve "$BCNACONF" "$BCNACONF"."$DATENOW"
    mess
@@ -408,6 +413,24 @@ echo -e "${grey}--> ${bkwhite}Cleaning the things ${grey}...${bkwhite}"
 echo "${grey}--> ${bkwhite}Cleaned unecessary storage ${grey}!!!${bkwhite}"
 sleep 1.5
 }
+console(){
+echo -e "\n\n${grey}--> ${bkwhite}You want get a Bitcanna Terminal on user login ${grey}??? (${green}Y${grey}/${red}N${grey})${bkwhite}\n"
+read -r MYTERM
+if [ "$MYTERM" = "Y" ] || [ "$MYTERM" = "y" ] ; then
+ sed -i "s/BCNAMODE=\"NONE\"/BCNAMODE=\"$choiz\"/" "$BCNAHOME"/BCNA-Console.sh
+ chown "$USER" "$BCNAHOME"/BCNA-Console.sh
+ chmod +r "$BCNAHOME"/BCNA-Console.sh
+ cat <<EOF >> ~/.bashrc
+if [ -f ~/BCNA-Console.sh ]; then
+ . BCNA-Console.sh
+fi
+EOF
+ echo -e "${grey}--> ${bkwhite}Bitcanna Terminal set for user ${green}$USER ${grey}!!!${bkwhite}"
+else
+ echo -e "${grey}--> ${yellow}Will not get a Bitcanna Terminal ${grey}!!!\n${bkwhite}You can run${yellow} 'bash BCNA-ExtractPeerList.sh' ${bkwhite}script on future ${grey}!!!{bkwhite}" 
+ sleep 1.5
+fi 
+}
 colors(){
 # Rainbow on our lives
 export endc=$'\e[0m'
@@ -430,9 +453,16 @@ dependencies
 if [[ "$EUID" -eq 0 ]]; then 
  echo -e "${grey}--> ${red}You are root ${grey}!!\n   ${yellow}Just NOT USE ROOT user ${grey}!!!\n      ${red}Exiting${grey}...${endc}" && sleep 0.5 && exit 1
 else
+ MYSUDOER=$(sudo grep '^$USER' /etc/sudoers)
+ if [[ "$MYSUDOER" -eq 0 ]]; then
+  echo -e "${grey}--> ${green}You are in sudoers file ${grey}!!!${endc}" && sleep 0.2
+ else
+  echo -e "${red}ERROR${grey}!!! ${bkwhite}User:${yellow}$USER ${bkwhite}is not a sudoer user\nExiting...${endc}" && sleep 0.2 
+  echo -e "${yellow}$USER user need sudoer privileges to set bitcannad and bitcanna-cli binaries !!!" && sleep 0.2
+  exit 1
+ fi
+ echo -e "${grey}--> ${bkwhite}Nice user${grey}: ${green}$USER ${grey}!! \n${green}Continuing${grey}...${bkwhite}" && sleep 0.7
  cd "$BCNAHOME" || { echo -e "${grey}--> ${red}$BCNAHOME Cant Found!\nExiting...${endc}"; exit 1; }
- echo -e "${grey}--> ${bkwhite}Nice user${grey}: ${green}$USER ${grey}!! \n${green}Continuing${grey}...${bkwhite}"
- sleep 1
  clear
  intro
  checkin
@@ -440,5 +470,8 @@ else
  concl
  history -cw
  echo -e "${endc}"
- exit 0
+fi
+
+if [ "$MYTERM" = "Y" ] || [ "$MYTERM" = "y" ]; then
+ bash "$BCNAHOME"/BCNA-Console.sh
 fi
