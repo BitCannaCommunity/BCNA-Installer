@@ -349,7 +349,7 @@ $RPCPWD
 EOF
 "$BCNACLI" backupwallet "$BCNAHOME"/BCNABACKUP/wallet.dat
 if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then cp -f "$BCNACONF"/masternode.conf "$BCNAHOME"/BCNABACKUP/masternode.conf; fi
-echo -e "\n${bgrey}--> ${bkwhite}Compacting Files ${grey}...${bkwhite}\n"
+echo -e "\n${grey}--> ${bkwhite}Compacting Files ${grey}...${bkwhite}\n"
 tar -zcvf "$BCNAHOME"/WalletBackup.tar.gz "$BCNAHOME"/BCNABACKUP
 chmod 500 "$BCNAHOME"/WalletBackup.tar.gz
 echo -e "\n\n${grey}--> ${bkwhite}Info Wallet Backuped on${grey}:${green} $BCNAHOME/WalletBackup.tar.gz \n${yellow}                       ${grey}!!! ${yellow}PLEASE ${grey}!!!\n${red}       SAVE THIS FILE ON MANY DEVICES ON SECURE PLACE${bkwhite}\n"

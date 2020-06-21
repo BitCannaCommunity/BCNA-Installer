@@ -205,9 +205,10 @@ fi
 }
 
 varys
-if [ grep -iv "BCNAMODE=\"P\"" || grep -iv "BCNAMODE=\"M\"" ./.bashrc ] ; then
+if grep -iq '^BCNAMODE="P"\|^BCNAMODE="M"' "$HOME"/BCNA-Console.sh ; then
+ bcnaconsolecheck
+else
  echo -e "${red}Check variable BCNAMODE ${grey}!!!${background}\n\t${green}MODEs Avaliable\n\t${green}BCNAMODE=\"P\" ${grey}- ${red}POS${background}\n\t${green}BCNAMODE=\"M\" ${grey}- ${red}Masternode${background}\n"
  exit 1
-else
- bcnaconsolecheck
 fi
+
