@@ -65,7 +65,7 @@ For the best experience, Should Set the Putty Console Window To: (check on scree
 # Run as normal User (NOT ROOT):
  ### You must CHANGE the value of the 'STAKE' variable to your need!
  ### You will choose upload your "wallet.dat" file into $PWD directory, if not uploaded, will create a new "wallet.dat" file.
-    git clone https://github.com/hellresistor/BCNA-Installer.git
+    git clone https://github.com/BitCannaCommunity/BCNA-Installer.git
     chmod -R +x BCNA-Installer && bash $PWD/BCNA-Installer/BCNA-Script.sh
 
 
