@@ -18,10 +18,10 @@ To Run the Masternode YOU NEED AT LEAST 100K (100.000) of BCNA (BitCanna Coins)!
 Please, Read the [BitCanna Whitepaper](https://www.bitcanna.io/whitepaper)
 
 
-# STATUS: *V1.18*
+# STATUS: *V1.20*
 
 *New:*
- - Add new BCNA-ExtractPeerList.sh Script 
+ - Add new BCNA-Console.sh Script 
 
 *BCNA-Script.sh Container:*
  - Install / Upgrade / Remove Lastest BCNA Unix version
@@ -42,6 +42,14 @@ Please, Read the [BitCanna Whitepaper](https://www.bitcanna.io/whitepaper)
 *BCNA-ExtractPeerList.sh Container:*
  - Get List of Ip and Port of Connected nodes.
  - Export and Sort into 'ExtractPeerList.txt' file.
+ 
+*BCNA-Console.sh Container:
+ - Get Wallet Address
+ - Check Masternode/POS status
+ - Stop/start Bitcanna
+ - Set Stake value
+ - Extract IP Peer List
+ - Get Blockchain and network information
 
 # Requirements: 
 
@@ -50,8 +58,9 @@ For the best experience, Should Set the Putty Console Window To: (check on scree
  - Rows:35 
 
 # Tested On:
- - Ubuntu Server 18.04 LTS
  - Debian 10.4
+ - Ubuntu Server 18.04 LTS
+ - Ubuntu Server 20.04
 
 # Run as normal User (NOT ROOT):
  ### You must CHANGE the value of the 'STAKE' variable to your need!
