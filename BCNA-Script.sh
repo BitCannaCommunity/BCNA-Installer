@@ -143,7 +143,7 @@ readonly choicc
 case "$choicc" in
  b|B) echo -e "${grey}--> ${bkwhite}Getting Bootstrap ${grey}...${bkwhite}"
   if [[ -n $(find ~ -name "$GETLASTBOOT.zip") ]]; then
-   echo -e "${$grey}--> ${green}Found $GETLASTBOOT.zip on local storage${bkwhite}"
+   echo -e "${grey}--> ${green}Found $GETLASTBOOT.zip on local storage${bkwhite}"
   else
    echo -e "${grey}--> ${bkwhite}Downloading $GETLASTBOOT.zip ${grey}...${bkwhite}" 
    wget "$BCNABOOT" -P "$BCNAHOME" > /dev/null 2>&1
