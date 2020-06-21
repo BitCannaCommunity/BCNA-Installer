@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC1001,SC1090
+
 BCNAMODE="NONE"
 
 varys(){
@@ -159,7 +161,7 @@ elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
       "$BCNACLI" masternode start-many
       echo -e "${green}Wallet UNLOCKED ${grey}!!!" && sleep 0.5 ;;
  e|E) echo -e "${green}Extracting Peer List ${grey}..."
-      . ~/BCNA-ExtractPeerList.sh 
+      . "$BCNAHOME"/BCNA-ExtractPeerList.sh 
       echo -e "${green}IP Peer List ${red}Extracted ${grey}!!!" ;;
  l|L) "$BCNACLI" wallet-lock 
       echo -e "${green}Wallet ${red}Locked ${grey}!!!"
