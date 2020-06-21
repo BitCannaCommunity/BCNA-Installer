@@ -4,7 +4,6 @@ BCNAMODE="NONE"
 
 varys(){
 readonly BCNAHOME="$PWD"
-readonly BCNADIR="Bitcanna"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly SCRPTVER="V1.20"
@@ -110,12 +109,12 @@ read -r SELECT
 if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
  case "$SELECT" in
  u|U) echo -e "${yellow}Put Wallet Password/Passphrase ${grey}?? " 
-      read -p -s MWLTPASS
+      read -p -r -s MWLTPASS
 	  "$BCNACLI" walletpassphrase "$MWLTPASS" 0 true || { echo "Wrong Password ..." ; bcnaconsolecheck ; }
 	  echo -e "${green}Wallet UNLOCKED ${grey}!!!"
 	  sleep 0.5 ;;
  e|E) echo -e "${green}Extracting Peer List ${grey}..."
-      . ~/BCNA-ExtractPeerList.sh 
+      . "$BCNAHOME"/BCNA-ExtractPeerList.sh 
 	  echo -e "${green}IP Peer List ${red}Extracted ${grey}!!!"
 	   ;;
  l|L) "$BCNACLI" wallet-lock 
@@ -131,7 +130,7 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
  k|K) "$BCNACLI" getstakesplitthreshold
       read -n 1 -s -r -p "Press any key to continue" ;;
  d|D) echo -e "${yellow}Set how much your Stake Split ${grey}(${yellow}${grey}-${yellow}999,999${grey}):{background}"
-      read -n SETSTAKE
+      read -n -r SETSTAKE
       "$BCNACLI" setstakesplitthreshold "$SETSTAKE"
       read -n 1 -s -r -p "Press any key to continue" ;;
  p|P) "$BCNACLI" stop && sleep 2
@@ -155,7 +154,7 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
 elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
  case "$SELECT" in
  u|U) echo -e "${yellow}Put Wallet Password/Passphrase ${grey}?? " 
-      read -p -s MWLTPASS
+      read -p -r -s MWLTPASS
       "$BCNACLI" walletpassphrase "$MWLTPASS" 0 false || { echo "Wrong Password ..." ; bcnaconsolecheck ; }
       "$BCNACLI" masternode start-many
       echo -e "${green}Wallet UNLOCKED ${grey}!!!" && sleep 0.5 ;;
@@ -205,7 +204,7 @@ fi
 }
 
 varys
-if grep -iq '^BCNAMODE="P"\|^BCNAMODE="M"' "$HOME"/BCNA-Console.sh ; then
+if grep -iq '^BCNAMODE="P"\|^BCNAMODE="M"' "$BCNAHOME"/BCNA-Console.sh ; then
  bcnaconsolecheck
 else
  echo -e "${red}Check variable BCNAMODE ${grey}!!!${background}\n\t${green}MODEs Avaliable\n\t${green}BCNAMODE=\"P\" ${grey}- ${red}POS${background}\n\t${green}BCNAMODE=\"M\" ${grey}- ${red}Masternode${background}\n"
