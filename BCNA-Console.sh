@@ -75,6 +75,7 @@ done
 bcnafullconsole(){
 while true
 do
+clear
 bcnaheaderconsole
 echo -e "$BORDER1${grey}___________________${sbl}${yellow} Wallet Info ${grey}_____________________$BORDER1"
 echo -e "$BORDER1 ${yellow}Connections${grey}: ${green}$($BCNACLI getconnectioncount)\t${yellow}Blocks${grey}: ${green}$($BCNACLI getblockcount)\t${yellow} MN Counter${grey}:${green}$(bitcanna-cli getmasternodecount | grep 'count' | cut -d\" -d\: -f2) $BORDER1"
@@ -83,9 +84,9 @@ echo -e "$LINE"
 if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
  echo -e "$BORDER1${grey}__________________${sbl}${yellow} Wallet Manager ${grey}___________________$BORDER1"
  echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
- echo -e "$BORDER1 ${green}U${grey}- ${yellow}Unlock to STAKE\t$BORDER1 ${green}W${grey}- ${yellow}Get Wallet Address\t$BORDER1"
+ echo -e "$BORDER1 ${green}U${grey}- ${yellow}Unlock to STAKE\t$BORDER1 ${green}G${grey}- ${yellow}Get Staking Status\t$BORDER1"
  echo -e "$BORDER1 ${green}E${grey}- ${yellow}Extract Peer List$BORDER1 ${green}I${grey}- ${yellow}Get List Address \t$BORDER1"
- echo -e "$BORDER1 ${green}L${grey}- ${yellow}Lock Wallet\t$BORDER1 ${green}B${grey}- ${yellow}Get Balance\t\t$BORDER1"
+ echo -e "$BORDER1 ${green}L${grey}- ${yellow}Lock Wallet\t$BORDER1\t\t\t\t$BORDER1"
  echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
  echo -e "$BORDER1 ${green}O${grey}- ${yellow}Get Info\t\t$BORDER1 ${green}D${grey}- ${yellow}Set Stake Threshold\t$BORDER1"
  echo -e "$BORDER1 ${green}N${grey}- ${yellow}Get Network Info\t$BORDER1 ${green}K${grey}- ${yellow}Get StakeSplit Info\t$BORDER1"
@@ -93,9 +94,9 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
 elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
  echo -e "$BORDER1${grey}__________________${sbl}${yellow} Wallet Manager ${grey}___________________$BORDER1"
  echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
- echo -e "$BORDER1 ${green}U${grey}- ${yellow}Unlock to STAKE\t$BORDER1 ${green}W${grey}- ${yellow}Get Wallet Address\t$BORDER1"
+ echo -e "$BORDER1 ${green}U${grey}- ${yellow}Unlock to STAKE\t$BORDER1\t\t\t\t$BORDER1"
  echo -e "$BORDER1 ${green}E${grey}- ${yellow}Extract Peer List$BORDER1 ${green}I${grey}- ${yellow}Get List Address \t$BORDER1"
- echo -e "$BORDER1 ${green}L${grey}- ${yellow}Lock Wallet\t$BORDER1 ${green}B${grey}- ${yellow}Get Balance\t\t$BORDER1"
+ echo -e "$BORDER1 ${green}L${grey}- ${yellow}Lock Wallet\t$BORDER1\t\t\t\t$BORDER1"
  echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
  echo -e "$BORDER1 ${green}O${grey}- ${yellow}Get Info\t\t$BORDER1\t\t\t\t$BORDER1"
  echo -e "$BORDER1 ${green}N${grey}- ${yellow}Get Network Info\t$BORDER1\t\t\t\t$BORDER1"
@@ -114,12 +115,14 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
       read -p -r -s MWLTPASS
 	  "$BCNACLI" walletpassphrase "$MWLTPASS" 0 true || { echo "Wrong Password ..." ; bcnaconsolecheck ; }
 	  echo -e "${green}Wallet UNLOCKED ${grey}!!!"
-	  sleep 0.5 ;;
- e|E) echo -e "${green}Extracting Peer List ${grey}..."
-      . "$BCNAHOME"/BCNA-ExtractPeerList.sh 
+  	  read -n 1 -s -r -p "Press any key to continue" ;;
+ g|G) "$BCNACLI" getstakingstatus
+   	  echo -e "${green}Get Staking Status ${grey}!!!"
+	  read -n 1 -s -r -p "Press any key to continue" ;;
+ e|E) bash "$BCNAHOME"/BCNA-ExtractPeerList.sh 
 	  echo -e "${green}IP Peer List ${red}Extracted ${grey}!!!"
-	   ;;
- l|L) "$BCNACLI" wallet-lock 
+	  read -n 1 -s -r -p "Press any key to continue" ;;
+ l|L) "$BCNACLI" walletlock 
 	  echo -e "${green}Wallet ${red}Locked ${grey}!!!"
    	  read -n 1 -s -r -p "Press any key to continue"  && sleep 0.5 ;;
  o|O) echo -e "${green}Getting Blockchain Information ${grey}!!!"
@@ -160,9 +163,9 @@ elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
       "$BCNACLI" walletpassphrase "$MWLTPASS" 0 false || { echo "Wrong Password ..." ; bcnaconsolecheck ; }
       "$BCNACLI" masternode start-many
       echo -e "${green}Wallet UNLOCKED ${grey}!!!" && sleep 0.5 ;;
- e|E) echo -e "${green}Extracting Peer List ${grey}..."
-      . "$BCNAHOME"/BCNA-ExtractPeerList.sh 
-      echo -e "${green}IP Peer List ${red}Extracted ${grey}!!!" ;;
+ e|E) bash "$BCNAHOME"/BCNA-ExtractPeerList.sh 
+	  echo -e "${green}IP Peer List ${red}Extracted ${grey}!!!"
+	  read -n 1 -s -r -p "Press any key to continue" ;;
  l|L) "$BCNACLI" wallet-lock 
       echo -e "${green}Wallet ${red}Locked ${grey}!!!"
       read -n 1 -s -r -p "Press any key to continue" && sleep 0.5 ;;
