@@ -134,8 +134,8 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
       read -n 1 -s -r -p "Press any key to continue" ;;
  k|K) "$BCNACLI" getstakesplitthreshold
       read -n 1 -s -r -p "Press any key to continue" ;;
- d|D) echo -e "${yellow}Set how much your Stake Split ${grey}(${yellow}${grey}-${yellow}999,999${grey}):{background}"
-      read -n -r SETSTAKE
+ d|D) echo -e "${yellow}Set how much your Stake Split ${grey}(${yellow}${grey}-${yellow}999,999${grey}):${background}"
+      read -p -r SETSTAKE
       "$BCNACLI" setstakesplitthreshold "$SETSTAKE"
       read -n 1 -s -r -p "Press any key to continue" ;;
  p|P) "$BCNACLI" stop && sleep 2
