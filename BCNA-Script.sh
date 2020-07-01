@@ -175,6 +175,8 @@ echo -e "${grey}--> ${bkwhite}Detecting wallet.dat file ${grey}... ${bkwhite}" &
 if [ -e "$BCNAHOME/wallet.dat" ]; then
  echo -e "${grey}--> ${green}wallet.dat FOUND in ${yellow}$PWD ${green}Directory${grey}... ${green}Putting it in right place ${yellow}$BCNACONF ${grey}!!!${bkwhite}\n"
  cp --preserve "$BCNAHOME"/wallet.dat "$BCNACONF"/wallet.dat
+ chown "$USER" "$BCNACONF"/wallet.dat
+ chmod 600 "$BCNACONF"/wallet.dat
  WALLETEXIST=1
  sleep 0.5
 else
