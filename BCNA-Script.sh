@@ -178,10 +178,12 @@ echo -e "${grey}--> ${green}You have some wallet.dat file or PRIVATE KEY to reco
 echo -e "${green}${bld}      W ${grey}- ${green} by wallet.dat file ${bkwhite}\n${yellow}${bld}      K ${grey}- ${yellow}by Private Key${bkwhite}\n${yellow}${bld}      C ${grey}- ${yellow}Do not Have yet ${green}Create NEW WALLET${bkwhite}\n"
 read -r choic
 case "$choic" in
-    w|W) echo -e "${grey}--> ${bkwhite}Detecting wallet.dat file ${grey}... ${bkwhite}" &&     sleep 0.5
+    w|W) echo -e "${grey}--> ${bkwhite}Detecting wallet.dat file ${grey}... ${bkwhite}"
+	     sleep 0.5
 	     while [ ! -f "$BCNAHOME"/wallet.dat ]
+         do		 
 		  echo -e "${grey}--> ${yellow}wallet.dat not found ${grey}...${bkwhite}\n ${green}Please put on this directory${grey}: ${yellow}$BCNAHOME/wallet.dat ${bkwhite}\n"
-		  read -n 1 -s -r -p "Press any key to continue" ;;
+		  read -n 1 -s -r -p "Press any key to continue"
          done
          echo -e "${grey}--> ${green}wallet.dat FOUND in ${yellow}$PWD ${green}Directory${grey}...\n${green}Putting it in right place ${yellow}$BCNACONF ${grey}!!!${bkwhite}\n"
          cp --preserve "$BCNAHOME"/wallet.dat "$BCNACONF"/wallet.dat
