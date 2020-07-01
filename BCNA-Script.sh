@@ -108,9 +108,8 @@ fi
 while true
 do 
  "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${bkwhite}${yellow}Wait ${grey}...${bkwhite}";
- sleep 5
+ sleep 10
 done
-sleep 5
 }
 syncr2(){
 echo -e "${grey}--> ${bkwhite}Starting Syncronization ${grey}...${bkwhite}"
@@ -173,9 +172,9 @@ chmod 600 "$BCNACONF"/bitcanna.conf
 echo -e "${grey}--> ${green}Random RPC User and Password generated ${grey}!!! ${bkwhite}"
 sleep 1
 echo -e "${grey}--> ${bkwhite}Detecting wallet.dat file ${grey}... ${bkwhite}" && sleep 0.5
-if [ -d "$BCNAHOME/wallet.dat" ]; then
+if [ -e "$BCNAHOME/wallet.dat" ]; then
  echo -e "${grey}--> ${green}wallet.dat FOUND in ${yellow}$PWD ${green}Directory${grey}... ${green}Putting it in right place ${yellow}$BCNACONF ${grey}!!!${bkwhite}\n"
- cp "$BCNAHOME"/wallet.dat "$BCNACONF"/wallet.dat
+ cp --preserve "$BCNAHOME"/wallet.dat "$BCNACONF"/wallet.dat
  WALLETEXIST=1
  sleep 0.5
 else
