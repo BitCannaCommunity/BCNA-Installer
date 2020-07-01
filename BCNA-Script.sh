@@ -170,23 +170,38 @@ echo "rpcuser=$RPCUSR" >> "$BCNACONF"/bitcanna.conf
 echo "rpcpassword=$RPCPWD" >> "$BCNACONF"/bitcanna.conf
 chmod 600 "$BCNACONF"/bitcanna.conf
 echo -e "${grey}--> ${green}Random RPC User and Password generated ${grey}!!! ${bkwhite}"
-sleep 1
-echo -e "${grey}--> ${bkwhite}Detecting wallet.dat file ${grey}... ${bkwhite}" && sleep 0.5
-if [ -e "$BCNAHOME/wallet.dat" ]; then
- echo -e "${grey}--> ${green}wallet.dat FOUND in ${yellow}$PWD ${green}Directory${grey}... ${green}Putting it in right place ${yellow}$BCNACONF ${grey}!!!${bkwhite}\n"
- cp --preserve "$BCNAHOME"/wallet.dat "$BCNACONF"/wallet.dat
- chown "$USER" "$BCNACONF"/wallet.dat
- chmod 600 "$BCNACONF"/wallet.dat
- WALLETEXIST=1
- sleep 0.5
-else
- echo -e "${grey}--> ${yellow}wallet.dat not found ${grey}... ${green}Creating a new one ${grey}...${bkwhite}\n"
- WALLETEXIST=0
- sleep 0.5
-fi
-readonly WALLETEXIST
 }
 cryptwallet(){
+while true
+do
+echo -e "${grey}--> ${green}You have some wallet.dat file or PRIVATE KEY to recover a older wallet ${grey}?${bkwhite}\n"
+echo -e "${green}${bld}      W ${grey}- ${green} by wallet.dat file ${bkwhite}\n${yellow}${bld}      K ${grey}- ${yellow}by Private Key${bkwhite}\n${yellow}${bld}      C ${grey}- ${yellow}Do not Have yet ${green}Create NEW WALLET${bkwhite}\n"
+read -r choic
+case "$choic" in
+    w|W) echo -e "${grey}--> ${bkwhite}Detecting wallet.dat file ${grey}... ${bkwhite}" &&     sleep 0.5
+	     while [ ! -f "$BCNAHOME"/wallet.dat ]
+		  echo -e "${grey}--> ${yellow}wallet.dat not found ${grey}...${bkwhite}\n ${green}Please put on this directory${grey}: ${yellow}$BCNAHOME/wallet.dat ${bkwhite}\n"
+		  read -n 1 -s -r -p "Press any key to continue" ;;
+         done
+         echo -e "${grey}--> ${green}wallet.dat FOUND in ${yellow}$PWD ${green}Directory${grey}...\n${green}Putting it in right place ${yellow}$BCNACONF ${grey}!!!${bkwhite}\n"
+         cp --preserve "$BCNAHOME"/wallet.dat "$BCNACONF"/wallet.dat
+         chown "$USER" "$BCNACONF"/wallet.dat
+         chmod 600 "$BCNACONF"/wallet.dat
+         WALLETEXIST=1
+         break ;;
+    k|K) echo -e "${bld}${green}Put ADDRESS of Recovering wallet${grey}:"
+	     read -rp "" WALLETADDRK
+	     echo -e "${bld}${green}Put PRIVATE KEY of Recovering wallet${grey}:"
+	     read -rp "" WALLETPRIVK
+         WALLETEXIST=2
+	     break ;;
+    c|C) echo -e "${grey}--> ${green}Creating a new wallet ${grey}...${bkwhite}\n"
+	     WALLETEXIST=0
+	     break ;;
+    *) echo -e "${red}Really ${grey}!?!? ${red}Missed ${grey}!?"
+       sleep 0.5 ;;
+esac
+done
 if [ "$WALLETEXIST" -eq 0 ] ; then
  WALLETPASS="dummy1"
  WALLETPASSS="dummy2"
@@ -209,6 +224,11 @@ elif [ "$WALLETEXIST" -eq 1 ] ; then
   echo -e "${bld}${yellow}Repeat your wallet.dat PassPhrase${grey}: ${bkwhite}" && read -rsp "" WALLETPASSS
  done
  readonly WALLETPASS
+elif [ "$WALLETEXIST" -eq 2 ] ; then
+ "$BCNACLI" importprivkey "$WALLETPRIVK"
+ "$BCNACLI" importaddress "$WALLETADDRK"
+ "$BCNACLI" stop
+ sleep 2
 fi
 if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ; then
  rundaemoncheck
