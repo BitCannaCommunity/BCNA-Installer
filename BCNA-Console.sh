@@ -1,14 +1,19 @@
 #!/bin/bash
+# --------------------------------------------------------
+# Bitcanna Community - Bitcanna Console Management 
+# Ver: 1.75
+# by: hellresistor
+# --------------------------------------------------------
 
-# shellcheck disable=SC1001,SC1090
+# shellcheck disable=SC1001
 
-BCNAMODE="NONE"
+BCNAMODE="p"
 
 varys(){
 readonly BCNAHOME="$PWD"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
-readonly SCRPTVER="V1.20"
+readonly SCRPTVER="V1.75"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 export endc=$'\e[0m'
 export sbl=$'\e[4m'
@@ -19,9 +24,9 @@ export red=${background}$'\e[38;5;196m'
 export green=${background}$'\e[38;5;34m'
 export yellow=${background}$'\e[38;5;172m'
 export grey=${background}$'\e[1;38;5;252m'
-readonly LINE="${grey}+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+${background}"
-readonly BORDER1="${grey}+-+${background}"
-readonly BORDER2="${grey}+-+\t\t\t\t\t\t\t+-+${background}"
+readonly LINE="${grey}+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"
+readonly BORDER1="${grey}+-+"
+readonly BORDER2="${grey}+-+\t\t\t\t\t\t\t+-+"
 }
 
 bcnafooterconsole(){
@@ -86,7 +91,7 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
  echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
  echo -e "$BORDER1 ${green}U${grey}- ${yellow}Unlock to STAKE\t$BORDER1 ${green}G${grey}- ${yellow}Get Staking Status\t$BORDER1"
  echo -e "$BORDER1 ${green}E${grey}- ${yellow}Extract Peer List$BORDER1 ${green}I${grey}- ${yellow}Get List Address \t$BORDER1"
- echo -e "$BORDER1 ${green}L${grey}- ${yellow}Lock Wallet\t$BORDER1\t\t\t\t$BORDER1"
+ echo -e "$BORDER1 ${green}L${grey}- ${yellow}Lock Wallet\t$BORDER1 ${green}C${grey}- ${yellow}Recalculate STAKE\t$BORDER1"
  echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
  echo -e "$BORDER1 ${green}O${grey}- ${yellow}Get Info\t\t$BORDER1 ${green}D${grey}- ${yellow}Set Stake Threshold\t$BORDER1"
  echo -e "$BORDER1 ${green}N${grey}- ${yellow}Get Network Info\t$BORDER1 ${green}K${grey}- ${yellow}Get StakeSplit Info\t$BORDER1"
@@ -122,6 +127,7 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
  e|E) bash "$BCNAHOME"/BCNA-ExtractPeerList.sh 
 	  echo -e "${green}IP Peer List ${red}Extracted ${grey}!!!"
 	  read -n 1 -s -r -p "Press any key to continue" ;;
+ c|C) bash "$BCNAHOME"/BCNA-Recalc.sh ;;
  l|L) "$BCNACLI" walletlock 
 	  echo -e "${green}Wallet ${red}Locked ${grey}!!!"
    	  read -n 1 -s -r -p "Press any key to continue"  && sleep 0.5 ;;
@@ -134,8 +140,8 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
       read -n 1 -s -r -p "Press any key to continue" ;;
  k|K) "$BCNACLI" getstakesplitthreshold
       read -n 1 -s -r -p "Press any key to continue" ;;
- d|D) echo -e "${yellow}Set how much your Stake Split ${grey}(${yellow}${grey}-${yellow}999,999${grey}):${background}"
-      read -p -r SETSTAKE
+ d|D) echo -e "${green}Set how much your Stake Split ${grey}(${yellow}${grey}-${yellow}999,999${grey}):${background}"
+      read -r SETSTAKE
       "$BCNACLI" setstakesplitthreshold "$SETSTAKE"
       read -n 1 -s -r -p "Press any key to continue" ;;
  p|P) "$BCNACLI" stop && sleep 2
