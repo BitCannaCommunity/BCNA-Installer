@@ -1,7 +1,7 @@
 #!/bin/bash
 # --------------------------------------------------------
 # Bitcanna Community - Bitcanna Console Management 
-# Ver: 1.75
+# Ver: 1.77
 # by: hellresistor
 # --------------------------------------------------------
 
@@ -42,7 +42,7 @@ echo -e "$LINE"
 }
 
 bcnaheaderconsole(){
-clear
+# clear
 echo -e "$LINE"
 echo -e "$BORDER2"
 echo -e "$BORDER1\t\t  ${green}Bitcanna ${yellow}User ${red}Console\t\t\t$BORDER1"
@@ -58,15 +58,16 @@ bcnafooterconsole
 echo -e "${yellow}Choice${grey}: ${background}"
 read -r SELECT
 case "$SELECT" in
- p|P) "$BCNACLI" stop && bcnaconsolecheck ;;
- t|T) "$BCNAD" -daemon || { echo -e "${grey}--> ${red}Bitcanna Wallet  Failed\nExiting${grey}...${background}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Force power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop > /dev/null 2>&1 ; bcnaconsolecheck; }
+ p|P) "$BCNACLI" stop && break ;;
+ t|T) "$BCNAD" -daemon || { echo -e "${grey}--> ${red}Bitcanna Wallet  Failed\nExiting${grey}...${background}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Force power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop > /dev/null 2>&1 ; break ; }
       while true
 	  do
 	   "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${yellow}Wait ${grey}...${background}";
        sleep 5
       done
-	  bcnaconsolecheck ;;
+	  break ;;
  s|S) clear
+      HELP=1
       "$BCNACLI" help
       break ;;
  r|R) "$BCNACLI" stop
@@ -80,7 +81,7 @@ done
 bcnafullconsole(){
 while true
 do
-clear
+# clear
 bcnaheaderconsole
 echo -e "$BORDER1${grey}___________________${sbl}${yellow} Wallet Info ${grey}_____________________$BORDER1"
 echo -e "$BORDER1 ${yellow}Connections${grey}: ${green}$($BCNACLI getconnectioncount)\t${yellow}Blocks${grey}: ${green}$($BCNACLI getblockcount)\t${yellow} MN Counter${grey}:${green}$(bitcanna-cli getmasternodecount | grep 'count' | cut -d\" -d\: -f2) $BORDER1"
@@ -118,7 +119,7 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
  case "$SELECT" in
  u|U) echo -e "${yellow}Put Wallet Password/Passphrase ${grey}?? " 
       read -p -r -s MWLTPASS
-	  "$BCNACLI" walletpassphrase "$MWLTPASS" 0 true || { echo "Wrong Password ..." ; bcnaconsolecheck ; }
+	  "$BCNACLI" walletpassphrase "$MWLTPASS" 0 true || { echo "Wrong Password ..." ; break ; }
 	  echo -e "${green}Wallet UNLOCKED ${grey}!!!"
   	  read -n 1 -s -r -p "Press any key to continue" ;;
  g|G) "$BCNACLI" getstakingstatus
@@ -145,18 +146,19 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
       "$BCNACLI" setstakesplitthreshold "$SETSTAKE"
       read -n 1 -s -r -p "Press any key to continue" ;;
  p|P) "$BCNACLI" stop && sleep 2
-      bcnaconsolecheck ;;
+      break ;;
  t|T) echo "Starting Bitcanna POS"
-      "$BCNAD" -daemon || { echo -e "${grey}--> ${red}Bitcanna Wallet  Failed\nExiting${grey}...${background}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Force power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop > /dev/null 2>&1 ; bcnaconsolecheck; }
+      "$BCNAD" -daemon || { echo -e "${grey}--> ${red}Bitcanna Wallet  Failed\nExiting${grey}...${background}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Force power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop > /dev/null 2>&1 ; break ; }
       while true
 	  do
 	   "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${yellow}Wait ${grey}...${background}";
        sleep 5
       done 
-	  bcnaconsolecheck ;;
+	  break ;;
  s|S) clear
-      "$BCNACLI" help
-      break ;;
+      HELP=1
+	  "$BCNACLI" help
+	  break ;;
  r|R) "$BCNACLI" stop
       sudo reboot ;;
  *) echo -e "${red}Really ${grey}!?!? ${red}Missed ${grey}!?"
@@ -166,7 +168,7 @@ elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
  case "$SELECT" in
  u|U) echo -e "${yellow}Put Wallet Password/Passphrase ${grey}?? " 
       read -p -r -s MWLTPASS
-      "$BCNACLI" walletpassphrase "$MWLTPASS" 0 false || { echo "Wrong Password ..." ; bcnaconsolecheck ; }
+      "$BCNACLI" walletpassphrase "$MWLTPASS" 0 false || { echo "Wrong Password ..." ; break ; }
       "$BCNACLI" masternode start-many
       echo -e "${green}Wallet UNLOCKED ${grey}!!!" && sleep 0.5 ;;
  e|E) bash "$BCNAHOME"/BCNA-ExtractPeerList.sh 
@@ -182,17 +184,18 @@ elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
       read -n 1 -s -r -p "Press any key to continue" ;;
  n|N) "$BCNACLI" getnetworkinfo
        read -n 1 -s -r -p "Press any key to continue" ;;
- p|P) "$BCNACLI" stop && bcnaconsolecheck ;;
+ p|P) "$BCNACLI" stop && break ;;
  t|T) echo "Starting Bitcanna MasterNode"
-      "$BCNAD" --maxconnections=1000 -daemon || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${background}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Force power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop > /dev/null 2>&1 ; bcnaconsolecheck ; }
+      "$BCNAD" --maxconnections=1000 -daemon || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${background}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Force power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop > /dev/null 2>&1 ; break ; }
       while true
 	  do
 	   "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${yellow}Wait ${grey}...${background}";
        sleep 5
       done ;;
- s|S) clear
-      "$BCNACLI" help
-      break ;;
+ s|S) # clear
+      HELP=1
+	  "$BCNACLI" help
+       break ;;
  r|R) "$BCNACLI" stop
       sudo reboot ;;
  *) echo -e "${red}Really ${grey}!?!? ${red}Missed ${grey}!?"
@@ -205,20 +208,23 @@ fi
 done
 }
 
-bcnaconsolecheck(){
-if pgrep -x "$BCNAD" >/dev/null ; then
- bcnafullconsole
-else
- echo -e "${yellow}Bitcanna ${red}IS NOT ${yellow}running ${grey}...\n" && sleep 2
- bcnabasicconsole
-fi
-}
-
 varys
 if grep -iq '^BCNAMODE="P"\|^BCNAMODE="M"' "$BCNAHOME"/BCNA-Console.sh ; then
- bcnaconsolecheck
+ while :
+ do
+  if [[ "$HELP" -eq 1 ]] ; then
+   HELP=0
+   break
+  fi
+  if pgrep -x "$BCNAD" >/dev/null ; then
+   bcnafullconsole
+  else
+   bcnabasicconsole
+  fi
+ done
 else
  echo -e "${red}Check variable BCNAMODE ${grey}!!!${background}\n\t${green}MODEs Avaliable\n\t${green}BCNAMODE=\"P\" ${grey}- ${red}POS${background}\n\t${green}BCNAMODE=\"M\" ${grey}- ${red}Masternode${background}\n"
  exit 1
 fi
 
+ 

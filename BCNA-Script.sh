@@ -4,7 +4,7 @@
 #                NO OFFICIAL                 #   
 #--------------------------------------------#
 #--------------------------------------------#
-#               Version: V1.75               #
+#               Version: V1.77               #
 #          Donate BitCanna Address:          #
 # --> B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv <-- #
 #--------------------------------------------#
@@ -38,7 +38,7 @@ readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly VPSIP="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')"
-readonly SCRPTVER="V1.75"
+readonly SCRPTVER="V1.77"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
 dependencies(){
@@ -125,10 +125,10 @@ fi
 echo -e "${grey}--> ${bkwhite}Copy binaries to right place ${grey}!!\n${bkwhite}"
 sudo cp -f "$BCNADIR"/* /usr/bin
 sudo chmod +x /usr/bin/bitcanna* 
-echo -e "${grey}--> ${bkwhite}Downloaded and Extracted to${grey}: ${green}$BCNADIR${bkwhite}"
+echo -e "${grey}--> ${green}Downloaded and Extracted to${grey}: ${green}$BCNADIR${bkwhite}"
 echo -e "${grey}--> ${bkwhite}Putting Bitcanna Community Scripts on right place ${grey}...\n${bkwhite}"
-ln -fs BCNA-Installer/BCNA-ExtractPeerList.sh BCNA-ExtractPeerList.sh
-ln -fs BCNA-Installer/BCNA-Recalc.sh BCNA-Recalc.sh
+ln -f BCNA-Installer/BCNA-ExtractPeerList.sh BCNA-ExtractPeerList.sh
+ln -f BCNA-Installer/BCNA-Recalc.sh BCNA-Recalc.sh
 sleep 0.5
 }
 choice(){
@@ -139,12 +139,11 @@ echo -e "${green}${bld}      P ${grey}- ${green}Full Node ${grey}(${green}POStak
 read -r choiz
 case "$choiz" in
     p|P) echo -e "${grey}--> ${bkwhite}Selected Full Node${bkwhite}"
-	 firstrun
+         firstrun
          walletposconf
          backup
 	 break ;;
     m|M) echo -e "${grey}--> ${bkwhite}Selected Master Node Configuration${bkwhite}"
-         sleep 1
          firstrun
          walletmnconf
          backup
@@ -259,7 +258,7 @@ syncr2(){
 echo -e "${grey}--> ${bkwhite}Starting Syncronization ${grey}...${bkwhite}"
 diff_t="420" ; while [ "$diff_t" -gt "7" ]
 do 
-# clear
+clear
 echo -e "${red}      __   __     _____   ______ \n${red}     /__/\/__/\  /_____/\/_____/\ 
 ${red}     \  \ \\${green}: ${red}\ \_\\${green}:::${red}_${green}:${red}\ \\${green}:::${red}_ \ \ 
 ${red}      \\${green}::${red}\_\\${green}::${red}\/_/\  _\\${green}:${red}\|\\${green}:${red}\ \ \ \ 
@@ -298,8 +297,8 @@ case "$choic" in
          WALLETEXIST=1
          break ;;
     k|K) echo -e "${bld}${green}Put PRIVATE KEY of Recovering wallet${grey}:"
-	     read -rp "" WALLETPRIVK
-         "$BCNACLI" importprivkey "$WALLETPRIVK"
+	     read -r WALLETPRIVK
+         "$BCNACLI" importprivkey "$WALLETPRIVK" MyBCNAWallet false
          WALLETEXIST=0
 	     break ;;
 	n|N) echo -e "${grey}--> ${yellow} Creating a NEW Wallet${grey}... ${bkwhite}" 
@@ -365,7 +364,7 @@ do
 done
 }
 backup(){
-echo -e "\n${grey}--> ${bkwhite}Backup Wallet Info ${grey}:${bkwhite}\n"
+echo -e "\n${grey}--> ${bld${sbl}}${green}Backup Wallet Info ${grey}:${bkwhite}\n"
 mkdir BCNABACKUP
 chmod -R 700 BCNABACKUP
 "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
@@ -373,24 +372,23 @@ BCNADUMP=$("$BCNACLI" dumpprivkey "$WLTADRS")
 cat <<EOF > "$BCNAHOME"/BCNABACKUP/walletinfo.txt
 Bitcanna Node Info
 
-Host: $HOSTNAME
-IP: $VPSIP
-Address: $WLTADRS
-Password: $WALLETPASS
-Dump: $BCNADUMP
-$RPCUSR
-$RPCPWD
+Host:        $HOSTNAME
+IP:          $VPSIP
+Address:     $WLTADRS
+Passphrase : $WALLETPASS
+Private Key: $BCNADUMP
+RPC User:    $RPCUSR
+RPC Pass:    $RPCPWD
 EOF
 "$BCNACLI" backupwallet "$BCNAHOME"/BCNABACKUP/wallet.dat
 if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then cp -f --preserve "$BCNACONF"/masternode.conf BCNABACKUP/masternode.conf; fi
 echo -e "\n${grey}--> ${bkwhite}Compacting Files ${grey}...${bkwhite}\n"
 tar --overwrite -zcvf "$BCNAHOME"/WalletBackup.tar.gz "$BCNAHOME"/BCNABACKUP
 chmod 600 "$BCNAHOME"/WalletBackup.tar.gz
-echo -e "\n\n${grey}--> ${bkwhite}Info Wallet Backuped on${grey}:${green} $BCNAHOME/WalletBackup.tar.gz \n${yellow}                       ${grey}!!! ${yellow}PLEASE ${grey}!!!\n${red}       SAVE THIS FILE IN MANY DEVICES IN A SECURE PLACE${bkwhite}\n"
+echo -e "\n\n${grey}--> ${bkwhite}Info Wallet Backuped on${grey}:${bld}${sbl}${green} $BCNAHOME/WalletBackup.tar.gz \n${yellow}\t${grey}!!! ${yellow}PLEASE ${grey}!!!\n${red}\tSAVE THIS FILE IN MANY DEVICES IN A SECURE PLACE${bkwhite}\n"
 sleep 2
 }
 final(){
-# clear
 "$BCNACLI" stop
 echo
 sleep 5
@@ -418,9 +416,9 @@ sed -i "s/BCNAMODE=\"NONE\"/BCNAMODE=\"$choiz\"/" BCNA-Installer/BCNA-Console.sh
 echo -e "\n\n${grey}--> ${bkwhite}You want get a Bitcanna Terminal on user login ${grey}??? (${green}Y${grey}/${red}N${grey})${bkwhite}\n"
 read -r MYTERM
 if [ "$MYTERM" == "Y" ] || [ "$MYTERM" == "y" ] ; then
- ln -s BCNA-Installer/BCNA-Console.sh BCNA-Console.sh
+ ln -f BCNA-Installer/BCNA-Console.sh BCNA-Console.sh
  if grep -Fxq "BCNA-Console.sh" "$BCNAHOME"/.bashrc ; then
-  echo -e "${grey}--> ${bkwhite}BCNA-Console.sh Existing on $BCNAHOME/.bashrc ${grey}!!!${bkwhite}\n"
+  echo -e "${grey}--> ${yellow}BCNA-Console.sh Existing on $BCNAHOME/.bashrc ${grey}!!!${bkwhite}\n"
  else
   cat <<EOF >> "$BCNAHOME"/.bashrc
 if [ -f ~/BCNA-Console.sh ]; then
@@ -430,23 +428,23 @@ EOF
   echo -e "${grey}--> ${bkwhite}Bitcanna Terminal set for user ${green}$USER ${grey}!!!${bkwhite}\n"
  fi
 else
- echo -e "${grey}--> ${yellow}Will not get a Bitcanna Terminal ${grey}!!!\n${bkwhite}You can run${yellow} 'bash $BCNAHOME/BCNA-ExtractPeerList.sh' ${bkwhite}script on future ${grey}!!!${bkwhite}\n" 
- sleep 1.5
+ echo -e "${grey}--> ${yellow}Will not get a Bitcanna Terminal ${grey}!!!\n${green}You can run${yellow} 'bash $BCNAHOME/BCNA-Installer/BCNA-ExtractPeerList.sh' ${green}script on future ${grey}!!!${bkwhite}\n" 
+ sleep 1
 fi 
 }
 mess(){
-echo -e "${grey}--> ${bkwhite}Cleaning the things ${grey}...${bkwhite}"
+echo -e "${grey}--> ${yellow}Cleaning the things ${grey}...${bkwhite}"
 [ -d "$(find "$BCNAHOME" -name "*MACOSX*" )" ] && rm -R -f "$BCNAHOME"/*MACOSX*
 [ -d "$(find "$BCNAHOME" -name "unix-*" )" ] && rm -R -f unix-*
 [ -d "$(find "$BCNAHOME" -name "unix_*" )" ] && rm -R -f unix_*
 [ -d "$(find "$BCNAHOME" -name "$BCNAPKG" )" ] && rm -R -f bcna-"$GETLAST"-unix*
 [ -d "$(find "$BCNAHOME" -name "BCNABACKUP" )" ] && rm -R -f BCNABACKUP
-[[ "$choiz" == "b" || "$choiz" == "B" ]] && rm "$BCNACONF"/bootstrap.dat.old
-echo "${grey}--> ${bkwhite}Cleaned unecessary storage ${grey}!!!${bkwhite}"
+[ -d "$(find "$BCNAHOME" -name "$BCNADIR" )" ] && rm -R -f "$BCNADIR"
+[[ "$choicc" == "b" || "$choicc" == "B" ]] && rm "$BCNACONF"/bootstrap.dat.old
+echo "${grey}--> ${green}Cleaned unecessary storage ${grey}!!!${bkwhite}"
 sleep 1.5
 }
 concl(){
-# clear
 echo -e "${bkwhite}${green}\n\t\t __    ___  __  \n\t\t|__) |  |  /  \`  /\  |\ | |\ |  /\  \n\t\t|__) |  |  \__, /~~\ | \| | \| /~~\ ${bkwhite}\n\n"
 echo -e "${green}\tProject Ver${grey}: ${bld}${bkwhite}$SCRPTVER ${bkwhite}\n\tby hellresistor\n\n\tDonation with Bitcanna\n\t${green}BCNA${grey}: ${yellow}${bld}${sbl}$DONATE${bkwhite}\n${endc}"
 }
@@ -469,7 +467,7 @@ else
  fi
  echo -e "${grey}--> ${bkwhite}Nice user${grey}: ${green}$USER ${grey}!! \n${green}Continuing${grey}...${bkwhite}" && sleep 0.7
  cd "$BCNAHOME" || { echo -e "${grey}--> ${red}$BCNAHOME Cant Found!\nExiting...${endc}"; exit 1; }
- # clear
+ clear
  intro
  checkin
  mess
