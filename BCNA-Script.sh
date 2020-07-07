@@ -281,7 +281,7 @@ walletrec(){
 while true
 do
 echo -e "${grey}--> ${green}Choose method to recover your wallet${grey}?${bkwhite}\n"
-echo -e "${green}${bld}\tW ${grey}- ${yellow}by wallet.dat file ${bkwhite}\n${green}${bld}\tK ${grey}- ${yellow}by Private Key ${grey}(${green}Recommended${grey})${bkwhite}\n${green}${bld}\tN ${grey}- ${yellow}NOT Recover. Create a NEW wallet${grey}!!!${bkwhite}\n"
+echo -e "${green}${bld}\tW ${grey}- ${yellow}by wallet.dat file ${grey}(${red}NOT Recommended${grey})${bkwhite}\n${green}${bld}\tK ${grey}- ${yellow}by Private Key ${grey}(${green}Recommended${grey})${bkwhite}\n${green}${bld}\tN ${grey}- ${yellow}NOT Recover. Create a NEW wallet${grey}!!!${bkwhite}\n"
 read -r choic
 case "$choic" in
     w|W) echo -e "${grey}--> ${bkwhite}Detecting wallet.dat file ${grey}... ${bkwhite}"
