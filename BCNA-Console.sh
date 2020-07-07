@@ -1,13 +1,13 @@
 #!/bin/bash
 # --------------------------------------------------------
 # Bitcanna Community - Bitcanna Console Management 
-# Ver: 1.77
+# Ver: 1.75
 # by: hellresistor
 # --------------------------------------------------------
 
 # shellcheck disable=SC1001
 
-BCNAMODE="p"
+BCNAMODE="NONE"
 
 varys(){
 readonly BCNAHOME="$PWD"
@@ -135,7 +135,7 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
  o|O) echo -e "${green}Getting Blockchain Information ${grey}!!!"
       "$BCNACLI" getblockchaininfo
 	  read -n 1 -s -r -p "Press any key to continue" ;;
- i|I) "$BCNACLI" listaddressgroupings
+ i|I) "$BCNACLI" listaccounts
       read -n 1 -s -r -p "Press any key to continue" ;;
  n|N) "$BCNACLI" getnetworkinfo
       read -n 1 -s -r -p "Press any key to continue" ;;
