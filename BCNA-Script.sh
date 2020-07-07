@@ -364,7 +364,7 @@ do
 done
 }
 backup(){
-echo -e "\n${grey}--> ${bld${sbl}}${green}Backup Wallet Info ${grey}:${bkwhite}\n"
+echo -e "\n${grey}--> ${bld}${sbl}${green}Backup Wallet Info ${grey}:${bkwhite}\n"
 mkdir BCNABACKUP
 chmod -R 700 BCNABACKUP
 "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
