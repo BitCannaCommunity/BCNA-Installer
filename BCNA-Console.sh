@@ -1,7 +1,7 @@
 #!/bin/bash
 # --------------------------------------------------------
 # Bitcanna Community - Bitcanna Console Management 
-# Ver: 1.75
+# Ver: 1.78
 # by: hellresistor
 # --------------------------------------------------------
 
@@ -13,7 +13,7 @@ varys(){
 readonly BCNAHOME="$PWD"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
-readonly SCRPTVER="V1.75"
+readonly SCRPTVER="V1.78"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 export endc=$'\e[0m'
 export sbl=$'\e[4m'

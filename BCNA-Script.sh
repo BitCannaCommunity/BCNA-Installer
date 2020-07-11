@@ -4,7 +4,7 @@
 #                NO OFFICIAL                 #   
 #--------------------------------------------#
 #--------------------------------------------#
-#               Version: V1.77               #
+#               Version: V1.78               #
 #          Donate BitCanna Address:          #
 # --> B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv <-- #
 #--------------------------------------------#
@@ -38,7 +38,7 @@ readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly VPSIP="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')"
-readonly SCRPTVER="V1.77"
+readonly SCRPTVER="V1.78"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
 dependencies(){
