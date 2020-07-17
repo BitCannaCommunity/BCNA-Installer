@@ -1,11 +1,11 @@
 #!/bin/bash
 # --------------------------------------------------------
 # Bitcanna Community - Extracting connected peers IP/Port 
-# Ver: 1.18
+# Ver: 1.75
+# by: hellresistor
 # --------------------------------------------------------
 
-bitcanna-cli getpeerinfo > ips.txt || { echo -e "Bitcanna Wallet is not Running..."; exit 1; }
-
+bitcanna-cli getpeerinfo > ips.txt
 sed -i '/id/d' ips.txt
 sed -i '/addrlocal/d' ips.txt
 sed -i '/services/d' ips.txt
@@ -36,8 +36,6 @@ sed -i "s/        //g" ips.txt
 
 echo "-------------------------------------------------------------------
 - BCNA-ExtractPeerList.sh - Output in $(date +"%Y-%m-%d %I:%M%p") -
--------------------------------------------------------------------" > ExtractPeerList.txt
+-------------------------------------------------------------------" >> ExtractPeerList.txt
 sort -n ips.txt >> ExtractPeerList.txt
 rm ips.txt
-
-exit 0
