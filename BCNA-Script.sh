@@ -194,7 +194,7 @@ sleep 1.5
 echo -e "${grey}--> ${bkwhite}Generate your MasterNode Private Key ${grey}...${bkwhite}"
 readonly MNGENK=$("$BCNACLI" masternode genkey)
 echo -e "${grey}--> ${bkwhite}Creating NEW Address to MASTERNODE ${grey}-> ${green}$MNALIAS ${bkwhite}"
-readonly NEWWLTADRS=$("$BCNACLI" getnewaddress "$MNALIAS")
+readonly NEWWLTADRS=$("$BCNACLI" getnewaddress "\"$MNALIAS\"")
 echo "$NEWWLTADRS"
 readonly WLTADRS=$("$BCNACLI" getaccountaddress wallet.dat)
 echo -e "${blk}${grey}--> ${bkwhite}     TIME TO SEND 100K COINS TO YOUR ${green}""$MNALIAS"" ${bkwhite}wallet address\n    My ${green}""$MNALIAS"" ${bkwhite}Wallet Address Is: ${green}${sbl}${bld}""$WLTADRS""${bkwhite}\n\n"
@@ -217,6 +217,7 @@ echo "$IDMN $MNALIAS $VPSIP:$BCNAPORT $MNGENK $MNID $MNTX" > "$BCNACONF"/mastern
 echo -e "${grey}--> ${bkwhite}Running Bitcanna Wallet\n${bkwhite}"
 rundaemoncheck
 echo -e "${grey}--> ${bkwhite}Activating MasterNode ${grey}...\n${bkwhite}"
+
 "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
 sleep 5
 echo -e "${bkwhite}${green}########################################################\n## ${grey}No Reference on Guides about Encrypt on MasterNode ${green}##\n######################################################## ${bkwhite}\n\n"
@@ -368,7 +369,11 @@ echo -e "\n${grey}--> ${bld}${sbl}${green}Backup Wallet Info ${grey}:${bkwhite}\
 mkdir BCNABACKUP
 chmod -R 700 BCNABACKUP
 "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
-BCNADUMP=$("$BCNACLI" dumpprivkey "$WLTADRS")
+if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ;  then
+ BCNADUMP=$("$BCNACLI" dumpprivkey "$WLTADRS")
+elif [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then 
+ BCNADUMP="$MNGENK"
+fi
 cat <<EOF > "$BCNAHOME"/BCNABACKUP/walletinfo.txt
 Bitcanna Node Info
 

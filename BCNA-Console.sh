@@ -59,7 +59,7 @@ echo -e "${yellow}Choice${grey}: ${background}"
 read -r SELECT
 case "$SELECT" in
  p|P) "$BCNACLI" stop && break ;;
- t|T) "$BCNAD" -daemon || { echo -e "${grey}--> ${red}Bitcanna Wallet  Failed\nExiting${grey}...${background}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Force power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop > /dev/null 2>&1 ; break ; }
+ t|T) if grep -iq '^BCNAMODE="P"' "$BCNAHOME"/BCNA-Console.sh ; then "$BCNAD" -daemon || { echo -e "${grey}--> ${red}Bitcanna Wallet  Failed\nExiting${grey}...${background}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Force power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop > /dev/null 2>&1 ; break ; }; elif grep -iq '^BCNAMODE="M"' "$BCNAHOME"/BCNA-Console.sh ; then "$BCNAD" --maxconnections=1000 -daemon || { echo -e "${grey}--> ${red}Bitcanna Wallet  Failed\nExiting${grey}...${background}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Force power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop > /dev/null 2>&1 ; break ; }; fi
       while true
 	  do
 	   "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${yellow}Wait ${grey}...${background}";
@@ -100,9 +100,7 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
 elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
  echo -e "$BORDER1${grey}__________________${sbl}${yellow} Wallet Manager ${grey}___________________$BORDER1"
  echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
- echo -e "$BORDER1 ${green}U${grey}- ${yellow}Unlock to STAKE\t$BORDER1\t\t\t\t$BORDER1"
  echo -e "$BORDER1 ${green}E${grey}- ${yellow}Extract Peer List$BORDER1 ${green}I${grey}- ${yellow}Get List Address \t$BORDER1"
- echo -e "$BORDER1 ${green}L${grey}- ${yellow}Lock Wallet\t$BORDER1\t\t\t\t$BORDER1"
  echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
  echo -e "$BORDER1 ${green}O${grey}- ${yellow}Get Info\t\t$BORDER1\t\t\t\t$BORDER1"
  echo -e "$BORDER1 ${green}N${grey}- ${yellow}Get Network Info\t$BORDER1\t\t\t\t$BORDER1"
@@ -174,9 +172,6 @@ elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
  e|E) bash "$BCNAHOME"/BCNA-ExtractPeerList.sh 
 	  echo -e "${green}IP Peer List ${red}Extracted ${grey}!!!"
 	  read -n 1 -s -r -p "Press any key to continue" ;;
- l|L) "$BCNACLI" wallet-lock 
-      echo -e "${green}Wallet ${red}Locked ${grey}!!!"
-      read -n 1 -s -r -p "Press any key to continue" && sleep 0.5 ;;
  o|O) echo -e "${green}Getting Blockchain Information ${grey}!!!"
       "$BCNACLI" getblockchaininfo
       read -n 1 -s -r -p "Press any key to continue" ;;
