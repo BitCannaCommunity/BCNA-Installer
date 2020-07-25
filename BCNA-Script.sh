@@ -37,7 +37,7 @@ readonly BCNADIR="Bitcanna"
 readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
-readonly VPSIP="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')"
+readonly VPSIP="$(curl -s ifconfig.me)"
 readonly SCRPTVER="V1.80"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
@@ -65,7 +65,6 @@ if [ "$choix" == "i" ] || [ "$choix" == "I" ]; then
 if [[ ! -a $(find "/usr/bin" -name "$BCNAD") ]] ; then
   bcnadown
   choice
-  final
   console
  else
   echo -e "${grey}--> ${yellow}Detected Bitcanna wallet already installed!\n${grey}--> ${bkwhite}Please Run Update${endc}" && exit 1
@@ -124,7 +123,7 @@ else
 fi
 echo -e "${grey}--> ${bkwhite}Copy binaries to right place ${grey}!!\n${bkwhite}"
 sudo cp -f "$BCNADIR"/* /usr/bin
-sudo chmod +x /usr/bin/bitcanna* 
+sudo chmod 777 /usr/bin/bitcanna* 
 echo -e "${grey}--> ${green}Downloaded and Extracted to${grey}: ${green}$BCNADIR${bkwhite}"
 echo -e "${grey}--> ${bkwhite}Putting Bitcanna Community Scripts on right place ${grey}...\n${bkwhite}"
 ln -f BCNA-Installer/BCNA-ExtractPeerList.sh BCNA-ExtractPeerList.sh
@@ -142,7 +141,13 @@ case "$choiz" in
          firstrun
          walletposconf
          backup
-	 break ;;
+		 "$BCNACLI" stop
+		 sleep 5
+		 rundaemoncheck
+		 "$BCNACLI" walletpassphrase "$WALLETPASS" 0 true 
+		 "$BCNACLI" getstakingstatus
+	     echo -e "\n${grey}--> ${green}Proof Of Stake Finished and Running ${grey}!! \n\n" 
+	     break ;;
     m|M) echo -e "${grey}--> ${bkwhite}Selected Master Node Configuration${bkwhite}"
          firstrun
          walletmnconf
@@ -358,13 +363,7 @@ fi
 sleep 1
 }
 rundaemoncheck(){
-if [ "$choiz" == "m" ] || [ "$choiz" == "M" ]; then 
- "$BCNAD" --maxconnections=1000 -daemon
-elif [ "$choiz" == "p" ] || [ "$choiz" == "P" ]; then 
- "$BCNAD" -daemon
-else
- echo -e "${red}ERROR ${grey}!! ${red}Maybe someone has hacked this ${grey}:O${endc}" && exit 1
-fi
+"$BCNAD" -daemon
 while true
 do 
  "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${bkwhite}${yellow}Wait ${grey}...${bkwhite}" ;
@@ -399,26 +398,6 @@ tar --overwrite -zcvf "$BCNAHOME"/WalletBackup.tar.gz "$BCNAHOME"/BCNABACKUP
 chmod 600 "$BCNAHOME"/WalletBackup.tar.gz
 echo -e "\n\n${grey}--> ${bkwhite}Info Wallet Backuped on${grey}:${bld}${sbl}${green} $BCNAHOME/WalletBackup.tar.gz \n${yellow}\t${grey}!!! ${yellow}PLEASE ${grey}!!!\n${red}\tSAVE THIS FILE IN MANY DEVICES IN A SECURE PLACE${bkwhite}\n"
 read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
-}
-final(){
-"$BCNACLI" stop
-echo
-sleep 5
-if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ; then
- rundaemoncheck
- "$BCNACLI" walletpassphrase "$WALLETPASS" 0 true 
- "$BCNACLI" getstakingstatus
- echo -e "\n${grey}--> ${green}Proof Of Stake Finished and Running ${grey}!! \n\n" 
-elif [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ; then
- rundaemoncheck
- "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
- sleep 0.5
- "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
- echo -e "\n${grey}--> ${green}MasterNode Finished and Running ${grey}!!! \n\n"
-else
- echo -e "\n${red}ERROR ${grey}!! ${red}Maybe someone has hacked this ${grey}:O${bkwhite}" && sleep 1 && echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}" && "$BCNACLI" stop && exit 1
-fi
-sleep 1
 }
 console(){
 sed -i "s/BCNAMODE=\"NONE\"/BCNAMODE=\"$choiz\"/" BCNA-Installer/BCNA-Console.sh
