@@ -164,7 +164,8 @@ echo "rpcuser=$RPCUSR" >> "$BCNACONF"/bitcanna.conf
 echo "rpcpassword=$RPCPWD" >> "$BCNACONF"/bitcanna.conf
 chmod 600 "$BCNACONF"/bitcanna.conf
 echo -e "${grey}--> ${green}Random RPC User and Password generated ${grey}!!! ${bkwhite}"
-"$BCNAD" -daemon && sleep 10 && "$BCNACLI" stop && sleep 2
+"$BCNAD" -daemon && sleep 10 && "$BCNACLI" stop && sleep 5
+echo -e "${grey}--> ${yellow}Removing masternod.conf file ${grey}...${bkwhite}\n"
 rm "$BCNACONF"/masternode.conf
 }
 walletposconf(){
@@ -258,9 +259,6 @@ case "$choicc" in
   sleep 1 ;;
 esac
 echo
-echo -e "${grey}--> ${bkwhite}Start Bitcanna Daemon ${grey}...${bkwhite}"
-"$BCNAD" -daemon && sleep 10 && "BCNACLI" stop && sleep 2
-echo -e "${grey}--> ${yellow}Removing masternod.conf file ${grey}...${bkwhite}\n"
 rundaemoncheck
 syncr2 
 }
