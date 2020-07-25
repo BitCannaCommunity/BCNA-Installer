@@ -155,7 +155,16 @@ done
 }
 firstrun(){
 echo -e "${grey}--> ${bkwhite}First Run of Bitcanna Wallet ${grey}... ${bkwhite}"
-"$BCNAD" -daemon && sleep 10 && "BCNACLI" stop && sleep 2
+echo -e "${grey}--> ${bkwhite}Lets Generate Random RPC User and Password ${grey}... ${bkwhite}"
+mkdir "$BCNACONF" > /dev/null 2>&1
+touch "$BCNACONF"/bitcanna.conf
+RPCUSR=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
+RPCPWD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
+echo "rpcuser=$RPCUSR" >> "$BCNACONF"/bitcanna.conf
+echo "rpcpassword=$RPCPWD" >> "$BCNACONF"/bitcanna.conf
+chmod 600 "$BCNACONF"/bitcanna.conf
+echo -e "${grey}--> ${green}Random RPC User and Password generated ${grey}!!! ${bkwhite}"
+"$BCNAD" -daemon && sleep 10 && "$BCNACLI" stop && sleep 2
 rm "$BCNACONF"/masternode.conf
 }
 walletposconf(){
