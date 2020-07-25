@@ -4,7 +4,7 @@
 #                NO OFFICIAL                 #   
 #--------------------------------------------#
 #--------------------------------------------#
-#               Version: V1.78               #
+#               Version: V1.80               #
 #          Donate BitCanna Address:          #
 # --> B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv <-- #
 #--------------------------------------------#
@@ -38,7 +38,7 @@ readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly VPSIP="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')"
-readonly SCRPTVER="V1.78"
+readonly SCRPTVER="V1.80"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
 dependencies(){
@@ -154,15 +154,9 @@ esac
 done
 }
 firstrun(){
-echo -e "${grey}--> ${bkwhite}Lets Generate Random RPC User and Password ${grey}... ${bkwhite}"
-mkdir "$BCNACONF" > /dev/null 2>&1
-touch "$BCNACONF"/bitcanna.conf
-RPCUSR=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
-RPCPWD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
-echo "rpcuser=$RPCUSR" >> "$BCNACONF"/bitcanna.conf
-echo "rpcpassword=$RPCPWD" >> "$BCNACONF"/bitcanna.conf
-chmod 600 "$BCNACONF"/bitcanna.conf
-echo -e "${grey}--> ${green}Random RPC User and Password generated ${grey}!!! ${bkwhite}"
+echo -e "${grey}--> ${bkwhite}First Run of Bitcanna Wallet ${grey}... ${bkwhite}"
+"$BCNAD" -daemon && sleep 10 && "BCNACLI" stop && sleep 2
+rm "$BCNACONF"/masternode.conf
 }
 walletposconf(){
 syncr
@@ -177,36 +171,51 @@ WLTADRS=$("$BCNACLI" getaccountaddress wallet.dat)
 echo -e "\n${grey}--> ${green}CONGRATULATIONS ${grey}!! ${green}BitCanna POS ${grey}- ${green}Proof-Of-Stake Configurations COMPLETED ${grey}!!!${bkwhite}\n"
 sleep 1.5
 echo -e "${blk}${grey}--> ${bkwhite}TIME TO SEND SOME COINS TO YOUR wallet address\n      My Wallet Address Is: ${green}${sbl}${bld}$WLTADRS${bkwhite}\n\n"
-read -n 1 -s -r -p "Press any key to continue"
+read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
 }
 walletmnconf(){
 echo "staking=0" >> "$BCNACONF"/bitcanna.conf
-echo -e "${grey}--> ${bkwhite}Set ID of this Masternode${grey}. Default${grey}: ${green}0 ${grey}(${bkwhite}Zer${green}0 ${grey}- ${bkwhite}To ${green}First ${bkwhite}Node${grey}, 1 ${grey}- ${bkwhite}To 2nd node${grey}, ...${bkwhite}"
-read -r -p "" IDMN
-echo -e "${grey}--> ${bkwhite}Set Your MasterNode wallet Alias ${grey}(default${grey}: ${green}MN0${grey}): ${bkwhite}"
-read -r -p "" MNALIAS
 syncr
 echo -e "${grey}--> ${bkwhite}Lets Check again ....!!${bkwhite}"
 sleep 1.5
 syncr2
 echo -e "${grey}--> ${green}YES!! REALLY! Bitcanna Wallet Fully Syncronized!!!${bkwhite}"
 sleep 1.5
+echo -e "${grey}--> ${bkwhite}You want Encrypt Bitcanna MasterNode Wallet with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${bkwhite}"
+read -r -p "" CRYPSN
+if [ "$CRYPSN" == "y" ]; then
+ WALLETEXIST=0
+ cryptwallet
+else
+ echo -e "${grey}--> ${red}                ATTENTION ${grey}!!!! \n${grey}--> ${yellow} YOUR WALLET IS ${red}NOT ${yellow}PROTECTED WITH PASSWORD ${grey}!!!!${bkwhite}\n"
+sleep 1.5
+fi
+echo -e "${grey}--> ${bkwhite}Set ID of this Masternode${grey}. Example${grey}: ${green}0 ${grey}(${bkwhite}Zer${green}0 ${grey}- ${bkwhite}To ${green}First ${bkwhite}Node${grey}, 1 ${grey}- ${bkwhite}To 2nd node${grey}, 2 ${grey}- ${bkwhite}To 3rd node${grey}... ${bkwhite}"
+read -r -p "" IDMN
+echo -e "${grey}--> ${bkwhite}Set Your MasterNode wallet Alias ${grey}(Example${grey}: ${green}MN0${grey}, ${green}MN1${grey}, ${green}MN2${grey})... ${bkwhite}"
+read -r -p "" MNALIAS
 echo -e "${grey}--> ${bkwhite}Generate your MasterNode Private Key ${grey}...${bkwhite}"
 readonly MNGENK=$("$BCNACLI" masternode genkey)
 echo -e "${grey}--> ${bkwhite}Creating NEW Address to MASTERNODE ${grey}-> ${green}$MNALIAS ${bkwhite}"
 readonly NEWWLTADRS=$("$BCNACLI" getnewaddress "\"$MNALIAS\"")
-echo "$NEWWLTADRS"
-readonly WLTADRS=$("$BCNACLI" getaccountaddress wallet.dat)
-echo -e "${blk}${grey}--> ${bkwhite}     TIME TO SEND 100K COINS TO YOUR ${green}""$MNALIAS"" ${bkwhite}wallet address\n    My ${green}""$MNALIAS"" ${bkwhite}Wallet Address Is: ${green}${sbl}${bld}""$WLTADRS""${bkwhite}\n\n"
-echo -e "${grey}--> ${bkwhite}IDENTIFY YOUR TRANSACTION ID ${grey}! \n${bkwhite}"
-"$BCNACLI" listtransactions
-read -n 1 -s -r -p "$(echo -e "${grey}--> ${bkwhite}Got it IDENTIFIED TxId ${grey}??!! \n${green}Press any key to continue ${grey}... \n\n${bkwhite}")"
-read -n 1 -s -r -p "$(echo -e "${grey}--> ${bkwhite}Please wait at least 16+ confirmations of trasaction \n${green}Press any key to continue ${grey}... \n\n${bkwhite}")"
-read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}After 16+ confirmations${grey}, \n${green}Press any key to continue ${grey}... \n\n${bkwhite}")" 
-read -n 1 -s -r -p "$(echo -e "${grey}--> ${yellow}Sure? ${yellow}16+ Confirmations${grey}? \n${yellow}Press any key to continue ${grey}...\n\n${bkwhite}")"
-read -n 1 -s -r -p "$(echo -e "${grey}--> ${bkwhite}OK{bgrey}! ${bkwhite}OK{bgrey}! ${bkwhite}Anoying Right${grey}? ${bkwhite}Only SURE as OK${grey}!!!\n${green}Press any key to continue ${grey}... \n\n${bkwhite}")"
-sleep 0.5
-echo -e "${grey}--> ${bkwhite}Finding the Collateral Output ${green}TX ${bkwhite}and ${green}INDEX\n${bkwhite}"
+readonly WLTADRS="$NEWWLTADRS"
+echo -e "\n\n${blk}${grey}--> ${bkwhite}\tTIME TO SEND 100K COINS TO YOUR ${green}$MNALIAS ${bkwhite}wallet address\n\tMy Label ${green}$MNALIAS and ${bkwhite}Wallet Address Is: ${green}${sbl}${bld}$WLTADRS${bkwhite}\n\n"
+while true
+do
+ echo -e "${grey}--> ${yellow}IDENTIFY YOUR TRANSACTION ID ${grey}!!! \n${bkwhite}"
+ sleep 1
+ echo -e "${grey}--> ${red}VERIFY ${grey}!!!!\n ${yellow}If you get +10 Confirmations of transaction ${grey}!!! \n${bkwhite}"
+ read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
+ "$BCNACLI" listtransactions
+ echo -e "${grey}--> ${green}Have you IDENTIFY your transaction id ${grey}(${green}TXID${grey}) ? (${green}Y${grey}/${red}N${grey}) \n${bkwhite}"
+ read -r -p "" CHOILIST
+ case "$CHOILIST" in
+  y|Y) sleep 0.5 && break ;;
+  n|N) echo -e "${yellow}Please${grey}, You need wait +10 Confirmations to continue ${grey}...${bkwhite}" ;;
+  *) echo -e "\n\n${red}Really ${grey}!?!? ${red}Missed ${grey}!?\n\n" && sleep 0.5 ;;
+esac
+done
+echo -e "${grey}--> ${bkwhite}Auto-finding the Collateral Output ${green}TX ${bkwhite}and ${green}INDEX\n${bkwhite}"
 readonly MNID=$("$BCNACLI" masternode outputs | awk -F'"' '{print $6}')
 readonly MNTX=$("$BCNACLI" masternode outputs | awk -F'"' '{print $8}')
 "$BCNACLI" stop
@@ -217,18 +226,7 @@ echo "$IDMN $MNALIAS $VPSIP:$BCNAPORT $MNGENK $MNID $MNTX" > "$BCNACONF"/mastern
 echo -e "${grey}--> ${bkwhite}Running Bitcanna Wallet\n${bkwhite}"
 rundaemoncheck
 echo -e "${grey}--> ${bkwhite}Activating MasterNode ${grey}...\n${bkwhite}"
-
 "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
-sleep 5
-echo -e "${bkwhite}${green}########################################################\n## ${grey}No Reference on Guides about Encrypt on MasterNode ${green}##\n######################################################## ${bkwhite}\n\n"
-echo -e "${grey}--> ${bkwhite}You want Encrypt Bitcanna Wallet with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${bkwhite}"
-read -r -p "" CRYPSN
-if [ "$CRYPSN" == "y" ]; then
- cryptwallet
-else
- echo -e "${grey}--> ${red}                ATTENTION ${grey}!!!! \n${grey}--> ${yellow} YOUR WALLET IS ${red}NOT ${yellow}PROTECTED WITH PASSWORD ${grey}!!!!${bkwhite}"
-sleep 1.5
-fi
 }
 syncr(){
 echo -e "${grey}--> ${bkwhite}Syncronization${bkwhite}\n\n   ${bkwhite}Which mode do you want to sync ? ${grey}(${green}${bld}B${grey}/${yellow}${bld}S${grey})${bkwhite}"
@@ -252,6 +250,8 @@ case "$choicc" in
 esac
 echo
 echo -e "${grey}--> ${bkwhite}Start Bitcanna Daemon ${grey}...${bkwhite}"
+"$BCNAD" -daemon && sleep 10 && "BCNACLI" stop && sleep 2
+echo -e "${grey}--> ${yellow}Removing masternod.conf file ${grey}...${bkwhite}\n"
 rundaemoncheck
 syncr2 
 }
@@ -290,7 +290,7 @@ case "$choic" in
 	     while [ ! -f "$BCNAHOME"/wallet.dat ]
          do		 
 		  echo -e "\n${grey}--> ${yellow}wallet.dat not found ${grey}...${bkwhite}\n ${green}Please, put wallet.dat on this directory ${grey}: ${yellow}$BCNAHOME/wallet.dat ${bkwhite}\n"
-		  read -n 1 -s -r -p "Press any key to continue"
+		  read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
          done
          echo -e "\n${grey}--> ${green}wallet.dat FOUND in ${yellow}$PWD ${green}Directory${grey}...${bkwhite}\n"
 		 "$BCNACLI" importwallet "$BCNAHOME"/wallet.dat
@@ -343,12 +343,12 @@ if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ; then
  "$BCNACLI" walletlock
  echo -e "\n${grey}--> ${bkwhite}Set to Staking forever ${grey}...${bkwhite}"
  "$BCNACLI" walletpassphrase "$WALLETPASS" 0 true || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
- sleep 5
 elif [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ; then
  rundaemoncheck
- "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ echo -e "\n\n${grey}--> ${bkwhite}Unlocking Masternode ${grey}...${bkwhite}\n"
+ "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
 fi
-sleep 2
+sleep 1
 }
 rundaemoncheck(){
 if [ "$choiz" == "m" ] || [ "$choiz" == "M" ]; then 
@@ -386,12 +386,12 @@ RPC User:    $RPCUSR
 RPC Pass:    $RPCPWD
 EOF
 "$BCNACLI" backupwallet "$BCNAHOME"/BCNABACKUP/wallet.dat
-if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then cp -f --preserve "$BCNACONF"/masternode.conf BCNABACKUP/masternode.conf; fi
+if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then cp -f --preserve "$BCNACONF"/masternode.conf "$BCNAHOME"/BCNABACKUP/masternode.conf; fi
 echo -e "\n${grey}--> ${bkwhite}Compacting Files ${grey}...${bkwhite}\n"
 tar --overwrite -zcvf "$BCNAHOME"/WalletBackup.tar.gz "$BCNAHOME"/BCNABACKUP
 chmod 600 "$BCNAHOME"/WalletBackup.tar.gz
 echo -e "\n\n${grey}--> ${bkwhite}Info Wallet Backuped on${grey}:${bld}${sbl}${green} $BCNAHOME/WalletBackup.tar.gz \n${yellow}\t${grey}!!! ${yellow}PLEASE ${grey}!!!\n${red}\tSAVE THIS FILE IN MANY DEVICES IN A SECURE PLACE${bkwhite}\n"
-sleep 2
+read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
 }
 final(){
 "$BCNACLI" stop
@@ -399,22 +399,19 @@ echo
 sleep 5
 if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ; then
  rundaemoncheck
- echo
  "$BCNACLI" walletpassphrase "$WALLETPASS" 0 true 
- sleep 3
- echo 
  "$BCNACLI" getstakingstatus
  echo -e "\n${grey}--> ${green}Proof Of Stake Finished and Running ${grey}!! \n\n" 
 elif [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ; then
  rundaemoncheck
-# "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
+ "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
  sleep 0.5
  "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
- sleep 2
  echo -e "\n${grey}--> ${green}MasterNode Finished and Running ${grey}!!! \n\n"
 else
  echo -e "\n${red}ERROR ${grey}!! ${red}Maybe someone has hacked this ${grey}:O${bkwhite}" && sleep 1 && echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}" && "$BCNACLI" stop && exit 1
 fi
+sleep 1
 }
 console(){
 sed -i "s/BCNAMODE=\"NONE\"/BCNAMODE=\"$choiz\"/" BCNA-Installer/BCNA-Console.sh
