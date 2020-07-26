@@ -25,7 +25,7 @@ export grey=${bkwhite}$'\e[1;38;5;252m'
 varys(){
 # System variables
 DATENOW=$(date +"%Y%m%d%H%M%S")
-readonly packages=( "unzip" )
+readonly packages=("unzip")
 readonly BCNAREP="https://github.com/BitCannaGlobal/BCNA/releases/download"
 readonly GETLAST=$(curl --silent "https://api.github.com/repos/BitCannaGlobal/BCNA/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 readonly GETLASTBOOT=$(curl --silent "https://api.github.com/repos/BitCannaCommunity/Bootstrap/releases/latest" | grep -Po '"name": "\K.*?(?=.zip)')
@@ -42,12 +42,13 @@ readonly SCRPTVER="V1.80"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
 dependencies(){
+sudo apt update > /dev/null 2>&1
 for i in "${packages[@]}"
 do
     command -v "$i" > /dev/null 2>&1 || { 
         echo -e >&2 "${grey}--> ${bkwhite}Package(s) ${green}$i ${bkwhite}required ${grey}!!!${bkwhite}\n";
         echo -e "${grey}--> ${bkwhite}Installing ${green}$i ${bkwhite}package ${grey}...${bkwhite}\n"; 
-        sleep 0.5
+        sleep 0.5 ;
         sudo apt install "$i" > /dev/null 2>&1 ;
     }
 done
@@ -108,16 +109,16 @@ bcnadown(){
 echo -e "${grey}--> ${bkwhite}Lets Download and Extract the Bitcanna Wallet from GitHub\n${bkwhite}"
 sleep 0.5
 [ -d "$BCNACONF" ] && cp -f -r --preserve "$BCNACONF" "$BCNACONF.${DATENOW}"
-[ ! -e "$BCNAPKG.zip" ] && echo -e "${grey}--> ${bkwhite}Downloading $BCNAPKG.zip ${grey}...." && wget -f "$BCNAREP/$GETLAST/$BCNAPKG.zip" > /dev/null 2>&1
-mkdir "$BCNADIR"
+[ ! -e "$BCNAPKG.zip" ] && echo -e "${grey}--> ${bkwhite}Downloading $BCNAPKG.zip ${grey}...." && wget -P "$BCNAHOME" "$BCNAREP"/"$GETLAST"/"$BCNAPKG".zip
+[ ! -e "$BCNADIR" ] && mkdir "$BCNADIR"
 echo -e "${grey}--> ${bkwhite}Extracting $BCNAPKG.zip ${grey}...."
 unzip -o "$BCNAPKG".zip > /dev/null 2>&1
 if [[ -n $(find ~ -name "unix-*") ]]; then
  cp -f unix-*/* "$BCNADIR" > /dev/null 2>&1
 elif [[ -n $(find ~ -name "unix_*") ]]; then
  cp -f unix_*/* "$BCNADIR" > /dev/null 2>&1
-elif [[ -n $(find ~ -name "bcna-$GETLAST-unix") ]]; then
- cp -f bcna-"$GETLAST"-unix/* "$BCNADIR" > /dev/null 2>&1
+elif [[ -n $(find ~ -name "$BCNAPKG") ]]; then
+ cp -f "$BCNAPKG"/* "$BCNADIR" > /dev/null 2>&1
 else
  echo -e "${red}ERROR on Extracting. Check extracted folder name structure${endc}" && sleep 0.5 && exit 1
 fi
@@ -212,7 +213,7 @@ read -r -p "" MNALIAS
 echo -e "${grey}--> ${bkwhite}Generate your MasterNode Private Key ${grey}...${bkwhite}"
 readonly MNGENK=$("$BCNACLI" masternode genkey)
 echo -e "${grey}--> ${bkwhite}Creating NEW Address to MASTERNODE ${grey}-> ${green}$MNALIAS ${bkwhite}"
-readonly NEWWLTADRS=$("$BCNACLI" getnewaddress "\"$MNALIAS\"")
+readonly NEWWLTADRS=$("$BCNACLI" getnewaddress "$MNALIAS")
 readonly WLTADRS="$NEWWLTADRS"
 echo -e "\n\n${blk}${grey}--> ${bkwhite}\tTIME TO SEND 100K COINS TO YOUR ${green}$MNALIAS ${bkwhite}wallet address\n\tMy Label ${green}$MNALIAS and ${bkwhite}Wallet Address Is: ${green}${sbl}${bld}$WLTADRS${bkwhite}\n\n"
 while true
@@ -221,6 +222,7 @@ do
  sleep 1
  echo -e "${grey}--> ${red}VERIFY ${grey}!!!!\n ${yellow}If you get +10 Confirmations of transaction ${grey}!!! \n${bkwhite}"
  read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
+ "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
  "$BCNACLI" listtransactions
  echo -e "${grey}--> ${green}Have you IDENTIFY your transaction id ${grey}(${green}TXID${grey}) ? (${green}Y${grey}/${red}N${grey}) \n${bkwhite}"
  read -r -p "" CHOILIST
@@ -231,15 +233,21 @@ do
 esac
 done
 echo -e "${grey}--> ${bkwhite}Auto-finding the Collateral Output ${green}TX ${bkwhite}and ${green}INDEX\n${bkwhite}"
-readonly MNID=$("$BCNACLI" masternode outputs | awk -F'"' '{print $6}')
-readonly MNTX=$("$BCNACLI" masternode outputs | awk -F'"' '{print $8}')
+readonly MNID=$("$BCNACLI" masternode outputs | awk -F'"' '{print $2}')
+readonly MNTX=$("$BCNACLI" masternode outputs | awk -F'"' '{print $4}')
 "$BCNACLI" stop
 sleep 5
 echo "externalip=$VPSIP" >> "$BCNACONF"/bitcanna.conf
 echo "port=$BCNAPORT" >> "$BCNACONF"/bitcanna.conf
 echo "$IDMN $MNALIAS $VPSIP:$BCNAPORT $MNGENK $MNID $MNTX" > "$BCNACONF"/masternode.conf
 echo -e "${grey}--> ${bkwhite}Running Bitcanna Wallet\n${bkwhite}"
-rundaemoncheck
+"$BCNAD" --maxconnections=1000 --daemon
+while true
+do 
+ "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${bkwhite}${yellow}Wait ${grey}...${bkwhite}" ;
+ sleep 10
+done
+"$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
 echo -e "${grey}--> ${bkwhite}Activating MasterNode ${grey}...\n${bkwhite}"
 "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
 }
@@ -394,8 +402,8 @@ EOF
 "$BCNACLI" backupwallet "$BCNAHOME"/BCNABACKUP/wallet.dat
 if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then cp -f --preserve "$BCNACONF"/masternode.conf "$BCNAHOME"/BCNABACKUP/masternode.conf; fi
 echo -e "\n${grey}--> ${bkwhite}Compacting Files ${grey}...${bkwhite}\n"
-tar --overwrite -zcvf "$BCNAHOME"/WalletBackup.tar.gz "$BCNAHOME"/BCNABACKUP
-chmod 600 "$BCNAHOME"/WalletBackup.tar.gz
+zip -r -q "$BCNAHOME"/WalletBackup "$BCNAHOME"/BCNABACKUP || tar --overwrite -zcvf "$BCNAHOME"/WalletBackup.tar.gz "$BCNAHOME"/BCNABACKUP
+chmod 600 "$BCNAHOME"/WalletBackup.*
 echo -e "\n\n${grey}--> ${bkwhite}Info Wallet Backuped on${grey}:${bld}${sbl}${green} $BCNAHOME/WalletBackup.tar.gz \n${yellow}\t${grey}!!! ${yellow}PLEASE ${grey}!!!\n${red}\tSAVE THIS FILE IN MANY DEVICES IN A SECURE PLACE${bkwhite}\n"
 read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
 }
