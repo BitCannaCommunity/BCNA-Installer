@@ -18,7 +18,7 @@ To Run the Masternode YOU NEED AT LEAST 100K (100.000) of BCNA (BitCanna Coins)!
 Please, Read the [BitCanna Whitepaper](https://www.bitcanna.io/whitepaper)
 
 
-# STATUS: *V1.80*
+# STATUS: *V2.00*
 
 *New:*
  - Add "Detect/Import wallet.dat/Private Key" options on BCNA-Script.sh  

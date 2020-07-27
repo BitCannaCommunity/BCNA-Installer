@@ -4,7 +4,7 @@
 #                NO OFFICIAL                 #   
 #--------------------------------------------#
 #--------------------------------------------#
-#               Version: V1.80               #
+#               Version: V2.00               #
 #          Donate BitCanna Address:          #
 # --> B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv <-- #
 #--------------------------------------------#
@@ -38,7 +38,7 @@ readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly VPSIP="$(curl -s ifconfig.me)"
-readonly SCRPTVER="V1.80"
+readonly SCRPTVER="V2.00"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
 dependencies(){
@@ -131,7 +131,32 @@ ln -f BCNA-Installer/BCNA-ExtractPeerList.sh BCNA-ExtractPeerList.sh
 ln -f BCNA-Installer/BCNA-Recalc.sh BCNA-Recalc.sh
 sleep 0.5
 }
+firstrun(){
+echo -e "${grey}--> ${bkwhite}First Run of Bitcanna Wallet ${grey}... ${bkwhite}"
+echo -e "${grey}--> ${bkwhite}Lets Generate Random RPC User and Password ${grey}... ${bkwhite}"
+mkdir "$BCNACONF" > /dev/null 2>&1
+touch "$BCNACONF"/bitcanna.conf
+RPCUSR="bitcannarpc"
+RPCPWD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
+echo "rpcuser=$RPCUSR" >> "$BCNACONF"/bitcanna.conf
+echo "rpcpassword=$RPCPWD" >> "$BCNACONF"/bitcanna.conf
+if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then
+ echo "staking=0" >> "$BCNACONF"/bitcanna.conf
+fi
+chmod 600 "$BCNACONF"/bitcanna.conf
+echo -e "${grey}--> ${green}Random RPC User and Password generated ${grey}!!! ${bkwhite}"
+#"$BCNAD" -daemon && sleep 10 && "$BCNACLI" stop && sleep 5
+echo -e "${grey}--> ${yellow}Removing masternod.conf file ${grey}...${bkwhite}\n"
+[ -d "$BCNACONF"/masternode.conf ] && rm "$BCNACONF"/masternode.conf  > /dev/null 2>&1
+}
 choice(){
+firstrun
+syncr
+echo -e "${grey}--> ${bkwhite}Lets Check again ....!!${bkwhite}"
+sleep 1.5
+syncr2
+echo -e "${grey}--> ${green}YES!! REALLY! Bitcanna Wallet Fully Syncronized!!!${bkwhite}"
+sleep 1.5
 while true
 do
 echo -e "${bkwhite}\n\n${grey}--> ${bkwhite}Wich you need Install/Configure ${grey}? (${green}${bld}P${grey}/${yellow}${bld}M${grey})${bkwhite}"
@@ -139,7 +164,6 @@ echo -e "${green}${bld}      P ${grey}- ${green}Full Node ${grey}(${green}POStak
 read -r choiz
 case "$choiz" in
     p|P) echo -e "${grey}--> ${bkwhite}Selected Full Node${bkwhite}"
-         firstrun
          walletposconf
          backup
 		 "$BCNACLI" stop
@@ -150,7 +174,6 @@ case "$choiz" in
 	     echo -e "\n${grey}--> ${green}Proof Of Stake Finished and Running ${grey}!! \n\n" 
 	     break ;;
     m|M) echo -e "${grey}--> ${bkwhite}Selected Master Node Configuration${bkwhite}"
-         firstrun
          walletmnconf
          backup
 	 break ;;
@@ -159,28 +182,7 @@ case "$choiz" in
 esac
 done
 }
-firstrun(){
-echo -e "${grey}--> ${bkwhite}First Run of Bitcanna Wallet ${grey}... ${bkwhite}"
-echo -e "${grey}--> ${bkwhite}Lets Generate Random RPC User and Password ${grey}... ${bkwhite}"
-mkdir "$BCNACONF" > /dev/null 2>&1
-touch "$BCNACONF"/bitcanna.conf
-RPCUSR="bitcannarpc"
-RPCPWD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
-echo "rpcuser=$RPCUSR" >> "$BCNACONF"/bitcanna.conf
-echo "rpcpassword=$RPCPWD" >> "$BCNACONF"/bitcanna.conf
-chmod 600 "$BCNACONF"/bitcanna.conf
-echo -e "${grey}--> ${green}Random RPC User and Password generated ${grey}!!! ${bkwhite}"
-"$BCNAD" -daemon && sleep 10 && "$BCNACLI" stop && sleep 5
-echo -e "${grey}--> ${yellow}Removing masternod.conf file ${grey}...${bkwhite}\n"
-rm "$BCNACONF"/masternode.conf
-}
 walletposconf(){
-syncr
-echo -e "${grey}--> ${bkwhite}Lets Check again ${grey}...${bkwhite}"
-sleep 1.5
-syncr2
-echo -e "${grey}--> ${green}YES${grey}!! ${green}REALLY${grey}!! ${green}Bitcanna Wallet Fully Syncronized ${grey}!!!${bkwhite}\n"
-sleep 1.5
 walletrec
 cryptwallet
 WLTADRS=$("$BCNACLI" getaccountaddress wallet.dat)
@@ -190,22 +192,6 @@ echo -e "${blk}${grey}--> ${bkwhite}TIME TO SEND SOME COINS TO YOUR wallet addre
 read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
 }
 walletmnconf(){
-echo "staking=0" >> "$BCNACONF"/bitcanna.conf
-syncr
-echo -e "${grey}--> ${bkwhite}Lets Check again ....!!${bkwhite}"
-sleep 1.5
-syncr2
-echo -e "${grey}--> ${green}YES!! REALLY! Bitcanna Wallet Fully Syncronized!!!${bkwhite}"
-sleep 1.5
-echo -e "${grey}--> ${bkwhite}You want Encrypt Bitcanna MasterNode Wallet with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${bkwhite}"
-read -r -p "" CRYPSN
-if [ "$CRYPSN" == "y" ]; then
- WALLETEXIST=0
- cryptwallet
-else
- echo -e "${grey}--> ${red}                ATTENTION ${grey}!!!! \n${grey}--> ${yellow} YOUR WALLET IS ${red}NOT ${yellow}PROTECTED WITH PASSWORD ${grey}!!!!${bkwhite}\n"
-sleep 1.5
-fi
 echo -e "${grey}--> ${bkwhite}Set ID of this Masternode${grey}. Example${grey}: ${green}0 ${grey}(${bkwhite}Zer${green}0 ${grey}- ${bkwhite}To ${green}First ${bkwhite}Node${grey}, 1 ${grey}- ${bkwhite}To 2nd node${grey}, 2 ${grey}- ${bkwhite}To 3rd node${grey}... ${bkwhite}"
 read -r -p "" IDMN
 echo -e "${grey}--> ${bkwhite}Set Your MasterNode wallet Alias ${grey}(Example${grey}: ${green}MN0${grey}, ${green}MN1${grey}, ${green}MN2${grey})... ${bkwhite}"
@@ -215,14 +201,13 @@ readonly MNGENK=$("$BCNACLI" masternode genkey)
 echo -e "${grey}--> ${bkwhite}Creating NEW Address to MASTERNODE ${grey}-> ${green}$MNALIAS ${bkwhite}"
 readonly NEWWLTADRS=$("$BCNACLI" getnewaddress "$MNALIAS")
 readonly WLTADRS="$NEWWLTADRS"
-echo -e "\n\n${blk}${grey}--> ${bkwhite}\tTIME TO SEND 100K COINS TO YOUR ${green}$MNALIAS ${bkwhite}wallet address\n\tMy Label ${green}$MNALIAS and ${bkwhite}Wallet Address Is: ${green}${sbl}${bld}$WLTADRS${bkwhite}\n\n"
+echo -e "\n\n${blk}${grey}--> ${bkwhite}\tTIME TO SEND 100K COINS TO YOUR ${green}$MNALIAS ${bkwhite}wallet address\n\tMy Label ${green}$MNALIAS and ${bkwhite}Wallet Address Is: ${green}${sbl}${bld}$WLTADRS\n\tMy Label ${green}$MNALIAS and ${bkwhite}Wallet Private Key Is: ${green}${sbl}${bld}$MNGENK${bkwhite}\n\n"
 while true
 do
  echo -e "${grey}--> ${yellow}IDENTIFY YOUR TRANSACTION ID ${grey}!!! \n${bkwhite}"
  sleep 1
  echo -e "${grey}--> ${red}VERIFY ${grey}!!!!\n ${yellow}If you get +10 Confirmations of transaction ${grey}!!! \n${bkwhite}"
  read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
- "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
  "$BCNACLI" listtransactions
  echo -e "${grey}--> ${green}Have you IDENTIFY your transaction id ${grey}(${green}TXID${grey}) ? (${green}Y${grey}/${red}N${grey}) \n${bkwhite}"
  read -r -p "" CHOILIST
@@ -241,15 +226,27 @@ echo "externalip=$VPSIP" >> "$BCNACONF"/bitcanna.conf
 echo "port=$BCNAPORT" >> "$BCNACONF"/bitcanna.conf
 echo "$IDMN $MNALIAS $VPSIP:$BCNAPORT $MNGENK $MNID $MNTX" > "$BCNACONF"/masternode.conf
 echo -e "${grey}--> ${bkwhite}Running Bitcanna Wallet\n${bkwhite}"
-"$BCNAD" --maxconnections=1000 --daemon
+"$BCNAD" --maxconnections=1000 --daemon || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
 while true
 do 
  "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${bkwhite}${yellow}Wait ${grey}...${bkwhite}" ;
  sleep 10
 done
-"$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+echo -e "${grey}--> ${bkwhite}You want Encrypt Bitcanna MasterNode Wallet with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${bkwhite}"
+read -r -p "" CRYPSN
+if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then
+ WALLETEXIST=0
+ cryptwallet
+else
+ echo -e "${grey}--> ${red}                ATTENTION ${grey}!!!! \n${grey}--> ${yellow} YOUR WALLET IS ${red}NOT ${yellow}PROTECTED WITH PASSWORD ${grey}!!!!${bkwhite}\n"
+sleep 1.5
+fi
 echo -e "${grey}--> ${bkwhite}Activating MasterNode ${grey}...\n${bkwhite}"
-"$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ]; then
+ "$BCNACLI" masternode start-many "$WALLETPASS" || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+else
+ "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+fi
 }
 syncr(){
 echo -e "${grey}--> ${bkwhite}Syncronization${bkwhite}\n\n   ${bkwhite}Which mode do you want to sync ? ${grey}(${green}${bld}B${grey}/${yellow}${bld}S${grey})${bkwhite}"
@@ -339,7 +336,7 @@ if [ "$WALLETEXIST" -eq 0 ] ; then
   echo -e "${bld}${yellow}Repeat PassPhrase again${grey}: ${bkwhite}" && read -rsp "" WALLETPASSS
  done
  "$BCNACLI" encryptwallet "$WALLETPASS" || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
- sleep 8
+ sleep 3
  echo -e "${grey}--> ${green}Bitcanna wallet.dat Encrypted ${grey}!!!${bkwhite}\n\n"
  sleep 1
 elif [ "$WALLETEXIST" -eq 1 ] ; then
@@ -363,10 +360,6 @@ if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ; then
  "$BCNACLI" walletlock
  echo -e "\n${grey}--> ${bkwhite}Set to Staking forever ${grey}...${bkwhite}"
  "$BCNACLI" walletpassphrase "$WALLETPASS" 0 true || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
-elif [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ; then
- rundaemoncheck
- echo -e "\n\n${grey}--> ${bkwhite}Unlocking Masternode ${grey}...${bkwhite}\n"
- "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
 fi
 sleep 1
 }
@@ -382,8 +375,10 @@ backup(){
 echo -e "\n${grey}--> ${bld}${sbl}${green}Backup Wallet Info ${grey}:${bkwhite}\n"
 mkdir BCNABACKUP
 chmod -R 700 BCNABACKUP
-"$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
 if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ;  then
+ if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then 
+  "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
+ fi
  BCNADUMP=$("$BCNACLI" dumpprivkey "$WLTADRS")
 elif [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then 
  BCNADUMP="$MNGENK"
