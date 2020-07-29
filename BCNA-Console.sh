@@ -199,7 +199,7 @@ fi
 done
 }
 addnewmn(){
-echo -e "${grey}--> ${yellow}Your MasterNode Wallet are Encrypted with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${bkwhite}"
+echo -e "${grey}--> ${yellow}Your MasterNode Wallet are Encrypted with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${white}"
 read -r -p "" CRYPSN
 if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then
  WALLETPASS="dummy1"
@@ -207,11 +207,11 @@ if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then
  while [ "$WALLETPASS" != "$WALLETPASSS" ]
  do
   echo -e "${bld}${green}Set PassPhrase to wallet.dat${grey}:" && read -rsp "" WALLETPASS
-  echo -e "${bld}${yellow}Repeat PassPhrase again${grey}: ${bkwhite}" && read -rsp "" WALLETPASSS
+  echo -e "${bld}${yellow}Repeat PassPhrase again${grey}: ${white}" && read -rsp "" WALLETPASSS
  done
- "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${white}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
  sleep 3
- echo -e "${grey}--> ${green}Bitcanna wallet.dat Decrypted ${grey}!!!${bkwhite}\n\n"
+ echo -e "${grey}--> ${green}Bitcanna wallet.dat Decrypted ${grey}!!!${white}\n\n"
  sleep 1
 fi
 
@@ -226,7 +226,7 @@ readonly NEWMNGENK=$("$BCNACLI" masternode genkey)
 echo -e "${grey}--> ${white}Creating NEW Address to MASTERNODE ${grey}-> ${green}$NEWMNALIAS ${white}"
 readonly NEWWLTADRSNEW=$("$BCNACLI" getnewaddress "$NEWMNALIAS")
 readonly WLTADRSNEW="$NEWWLTADRSNEW"
-echo -e "\n${blk}${grey}--> ${bkwhite}\tTIME TO SEND ${red}100K${bkwhite} COINS TO YOUR ${green}$MNALIAS ${bkwhite}wallet address\n\tMy Label ${green}$MNALIAS${bkwhite} and Wallet Address Is: ${green}${sbl}${bld}$WLTADRS${bkwhite}\n\tMy Label ${green}$MNALIAS${bkwhite} and Wallet Private Key Is: ${green}${sbl}${bld}$MNGENK${bkwhite}\n\n"
+echo -e "\n${bld}${grey}--> ${white}\tTIME TO SEND ${red}100K${white} COINS TO YOUR ${green}$MNALIAS ${white}wallet address\n\tMy Label ${green}$MNALIAS${white} and Wallet Address Is: ${green}${sbl}${bld}$WLTADRSNEW${white}\n\tMy Label ${green}$MNALIAS${white} and Wallet Private Key Is: ${green}${sbl}${bld}$MNGENK${white}\n\n"
 while true
 do
  echo -e "${grey}--> ${yellow}IDENTIFY YOUR TRANSACTION ID ${grey}!!! \n${white}"
@@ -250,19 +250,19 @@ sleep 5
 readonly VPSIP="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')"
 echo "port=$NEWBCNAPORT" >> "$BCNACONF"/bitcanna.conf
 echo "$NEWIDMN $NEWMNALIAS $VPSIP:$NEWBCNAPORT $NEWMNGENK $NEWMNID $NEWMNTX" >> "$BCNACONF"/masternode.conf
-echo -e "${grey}--> ${bkwhite}Running Bitcanna Wallet\n${bkwhite}"
-"$BCNAD" --maxconnections=1000 --daemon || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+echo -e "${grey}--> ${white}Running Bitcanna Wallet\n${white}"
+"$BCNAD" --maxconnections=1000 --daemon || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${white}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
 while true
 do 
  sleep 10
- "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${bkwhite}${yellow}Wait ${grey}...${bkwhite}" ;
+ "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${white}${yellow}Wait ${grey}...${white}" ;
  sleep 10
 done
-echo -e "${grey}--> ${bkwhite}Activating MasterNode ${grey}...\n${bkwhite}"
+echo -e "${grey}--> ${white}Activating MasterNode ${grey}...\n${white}"
 if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ]; then
- "$BCNACLI" masternode start-many "$WALLETPASS" || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ "$BCNACLI" masternode start-many "$WALLETPASS" || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${white}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
 else
- "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${white}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
 fi
 read -n 1 -s -r -p "$(echo -e "\n${grey}--> ${green}Press any key to continue ${grey}... \n${white}")"
 }
