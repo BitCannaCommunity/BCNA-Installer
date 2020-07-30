@@ -1,7 +1,7 @@
 #!/bin/bash
 # --------------------------------------------------------
 # Bitcanna Community - Bitcanna Console Management 
-# Ver: 1.78
+# Ver: 2.00
 # by: hellresistor
 # --------------------------------------------------------
 
@@ -28,7 +28,6 @@ readonly LINE="${grey}+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 readonly BORDER1="${grey}+-+"
 readonly BORDER2="${grey}+-+\t\t\t\t\t\t\t+-+"
 }
-
 bcnafooterconsole(){
 echo -e "$BORDER1${grey}_________________${sbl}${yellow} Bitcanna Manager ${grey}__________________$BORDER1"
 echo -e "$BORDER1 ${green}P${grey}- ${yellow}StoP Bitcanna\t${BORDER1} ${green}T${grey}- ${yellow}StarT Bitcanna\t\t$BORDER1"
@@ -40,7 +39,6 @@ echo -e "$BORDER1 ${red}Donate Bitcanna${grey}: ${green}$DONATE $BORDER1"
 echo -e "$BORDER1\t${red}Version${grey}: ${green}$SCRPTVER\t$BORDER1 ${red}by ${green}hellresistor\t\t$BORDER1"
 echo -e "$LINE"
 }
-
 bcnaheaderconsole(){
 # clear
 echo -e "$LINE"
@@ -49,7 +47,6 @@ echo -e "$BORDER1\t\t  ${green}Bitcanna ${yellow}User ${red}Console\t\t\t$BORDER
 echo -e "$BORDER2"
 echo -e "$LINE"
 }
-
 bcnabasicconsole(){
 while true
 do
@@ -77,11 +74,10 @@ case "$SELECT" in
  esac
 done
 }
-
 bcnafullconsole(){
 while true
 do
-# clear
+clear
 bcnaheaderconsole
 echo -e "$BORDER1${grey}___________________${sbl}${yellow} Wallet Info ${grey}_____________________$BORDER1"
 echo -e "$BORDER1 ${yellow}Connections${grey}: ${green}$($BCNACLI getconnectioncount)\t${yellow}Blocks${grey}: ${green}$($BCNACLI getblockcount)\t${yellow} MN Counter${grey}:${green}$(bitcanna-cli getmasternodecount | grep 'count' | cut -d\" -d\: -f2) $BORDER1"
@@ -101,7 +97,7 @@ elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
  echo -e "$BORDER1${grey}__________________${sbl}${yellow} Wallet Manager ${grey}___________________$BORDER1"
  echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
  echo -e "$BORDER1 ${green}E${grey}- ${yellow}Extract Peer List$BORDER1 ${green}I${grey}- ${yellow}Get List Address \t$BORDER1"
- echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
+ echo -e "$BORDER1\t\t\t$BORDER1  ${green}A${grey}- ${yellow}Add a New MN \t$BORDER1" 
  echo -e "$BORDER1 ${green}O${grey}- ${yellow}Get Info\t\t$BORDER1\t\t\t\t$BORDER1"
  echo -e "$BORDER1 ${green}N${grey}- ${yellow}Get Network Info\t$BORDER1\t\t\t\t$BORDER1"
  echo -e "$BORDER1\t\t\t$BORDER1\t\t\t\t$BORDER1" 
@@ -119,30 +115,30 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
       read -p -r -s MWLTPASS
 	  "$BCNACLI" walletpassphrase "$MWLTPASS" 0 true || { echo "Wrong Password ..." ; break ; }
 	  echo -e "${green}Wallet UNLOCKED ${grey}!!!"
-  	  read -n 1 -s -r -p "Press any key to continue" ;;
+  	  read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  g|G) "$BCNACLI" getstakingstatus
    	  echo -e "${green}Get Staking Status ${grey}!!!"
-	  read -n 1 -s -r -p "Press any key to continue" ;;
+	  read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  e|E) bash "$BCNAHOME"/BCNA-ExtractPeerList.sh 
 	  echo -e "${green}IP Peer List ${red}Extracted ${grey}!!!"
-	  read -n 1 -s -r -p "Press any key to continue" ;;
+	  read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  c|C) bash "$BCNAHOME"/BCNA-Recalc.sh ;;
  l|L) "$BCNACLI" walletlock 
 	  echo -e "${green}Wallet ${red}Locked ${grey}!!!"
-   	  read -n 1 -s -r -p "Press any key to continue"  && sleep 0.5 ;;
+   	  read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")"  && sleep 0.5 ;;
  o|O) echo -e "${green}Getting Blockchain Information ${grey}!!!"
       "$BCNACLI" getblockchaininfo
-	  read -n 1 -s -r -p "Press any key to continue" ;;
+	  read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  i|I) "$BCNACLI" listaccounts
-      read -n 1 -s -r -p "Press any key to continue" ;;
+      read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  n|N) "$BCNACLI" getnetworkinfo
-      read -n 1 -s -r -p "Press any key to continue" ;;
+      read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  k|K) "$BCNACLI" getstakesplitthreshold
-      read -n 1 -s -r -p "Press any key to continue" ;;
+      read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  d|D) echo -e "${green}Set how much your Stake Split ${grey}(${yellow}${grey}-${yellow}999,999${grey}):${background}"
       read -r SETSTAKE
       "$BCNACLI" setstakesplitthreshold "$SETSTAKE"
-      read -n 1 -s -r -p "Press any key to continue" ;;
+      read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  p|P) "$BCNACLI" stop && sleep 2
       break ;;
  t|T) echo "Starting Bitcanna POS"
@@ -164,6 +160,7 @@ if [ "$BCNAMODE" = "p" ] || [ "$BCNAMODE" = "P" ]; then
  esac
 elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
  case "$SELECT" in
+ a|A) addnewmn ;;
  u|U) echo -e "${yellow}Put Wallet Password/Passphrase ${grey}?? " 
       read -p -r -s MWLTPASS
       "$BCNACLI" walletpassphrase "$MWLTPASS" 0 false || { echo "Wrong Password ..." ; break ; }
@@ -171,14 +168,14 @@ elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
       echo -e "${green}Wallet UNLOCKED ${grey}!!!" && sleep 0.5 ;;
  e|E) bash "$BCNAHOME"/BCNA-ExtractPeerList.sh 
 	  echo -e "${green}IP Peer List ${red}Extracted ${grey}!!!"
-	  read -n 1 -s -r -p "Press any key to continue" ;;
+	  read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  o|O) echo -e "${green}Getting Blockchain Information ${grey}!!!"
       "$BCNACLI" getblockchaininfo
-      read -n 1 -s -r -p "Press any key to continue" ;;
+      read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  i|I) "$BCNACLI" listaddressgroupings
-      read -n 1 -s -r -p "Press any key to continue" ;;
+      read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  n|N) "$BCNACLI" getnetworkinfo
-       read -n 1 -s -r -p "Press any key to continue" ;;
+       read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")" ;;
  p|P) "$BCNACLI" stop && break ;;
  t|T) echo "Starting Bitcanna MasterNode"
       "$BCNAD" --maxconnections=1000 -daemon || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${background}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Force power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop > /dev/null 2>&1 ; break ; }
@@ -187,8 +184,7 @@ elif [ "$BCNAMODE" = "m" ] || [ "$BCNAMODE" = "M" ]; then
 	   "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${yellow}Wait ${grey}...${background}";
        sleep 5
       done ;;
- s|S) # clear
-      HELP=1
+ s|S) HELP=1
 	  "$BCNACLI" help
        break ;;
  r|R) "$BCNACLI" stop
@@ -201,6 +197,74 @@ else
  exit 1
 fi
 done
+}
+addnewmn(){
+echo -e "${grey}--> ${yellow}Your MasterNode Wallet are Encrypted with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${white}"
+read -r -p "" CRYPSN
+if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then
+ WALLETPASS="dummy1"
+ WALLETPASSS="dummy2"
+ while [ "$WALLETPASS" != "$WALLETPASSS" ]
+ do
+  echo -e "${bld}${green}Set PassPhrase to wallet.dat${grey}:" && read -rsp "" WALLETPASS
+  echo -e "${bld}${yellow}Repeat PassPhrase again${grey}: ${white}" && read -rsp "" WALLETPASSS
+ done
+ "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${white}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ sleep 3
+ echo -e "${grey}--> ${green}Bitcanna wallet.dat Decrypted ${grey}!!!${white}\n\n"
+ sleep 1
+fi
+
+echo -e "${grey}--> ${white}Set ID of this Masternode${grey}. Example${grey}: ${green}1 ${grey}- ${white}To 2nd node${grey}, 2 ${grey}- ${white}To 3rd node${grey}... ${white}"
+read -r -p "" NEWIDMN
+echo -e "${grey}--> ${white}Set Your MasterNode wallet Alias ${grey}(${yellow}Example${grey}: ${green}MN1${grey}, ${green}MN2${grey})... ${white}"
+read -r -p "" NEWMNALIAS
+echo -e "${grey}--> ${white}SET a NEW Bitcanna Port ${grey}... ${white}" 
+read -r-p "" NEWBCNAPORT
+echo -e "${grey}--> ${white}Generate your MasterNode Private Key ${grey}...${white}"
+readonly NEWMNGENK=$("$BCNACLI" masternode genkey)
+echo -e "${grey}--> ${white}Creating NEW Address to MASTERNODE ${grey}-> ${green}$NEWMNALIAS ${white}"
+readonly NEWWLTADRSNEW=$("$BCNACLI" getnewaddress "$NEWMNALIAS")
+readonly WLTADRSNEW="$NEWWLTADRSNEW"
+echo -e "\n${bld}${grey}--> ${white}\tTIME TO SEND ${red}100K${white} COINS TO YOUR ${green}$MNALIAS ${white}wallet address\n\tMy Label ${green}$MNALIAS${white} and Wallet Address Is: ${green}${sbl}${bld}$WLTADRSNEW${white}\n\tMy Label ${green}$MNALIAS${white} and Wallet Private Key Is: ${green}${sbl}${bld}$MNGENK${white}\n\n"
+while true
+do
+ echo -e "${grey}--> ${yellow}IDENTIFY YOUR TRANSACTION ID ${grey}!!! \n${white}"
+ sleep 1
+ echo -e "${grey}--> ${red}VERIFY ${grey}!!!!\n ${yellow}If you get +10 Confirmations of transaction ${grey}!!! \n${white}"
+ read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${white}")"
+ "$BCNACLI" listtransactions
+ echo -e "${grey}--> ${green}Have you IDENTIFY your transaction id ${grey}(${green}TXID${grey}) ? (${green}Y${grey}/${red}N${grey}) \n${white}"
+ read -r -p "" CHOILIST
+ case "$CHOILIST" in
+  y|Y) sleep 0.5 && break ;;
+  n|N) echo -e "${yellow}Please${grey}, You need wait +10 Confirmations to continue ${grey}...${white}" ;;
+  *) echo -e "\n\n${red}Really ${grey}!?!? ${red}Missed ${grey}!?\n\n" && sleep 0.5 ;;
+esac
+done
+echo -e "${grey}--> ${white}Auto-finding the Collateral Output ${green}TX ${white}and ${green}INDEX\n${white}"
+readonly NEWMNID=$("$BCNACLI" masternode outputs | awk -F'"' '{print $2}')
+readonly NEWMNTX=$("$BCNACLI" masternode outputs | awk -F'"' '{print $4}')
+"$BCNACLI" stop
+sleep 5
+readonly VPSIP="$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')"
+echo "port=$NEWBCNAPORT" >> "$BCNACONF"/bitcanna.conf
+echo "$NEWIDMN $NEWMNALIAS $VPSIP:$NEWBCNAPORT $NEWMNGENK $NEWMNID $NEWMNTX" >> "$BCNACONF"/masternode.conf
+echo -e "${grey}--> ${white}Running Bitcanna Wallet\n${white}"
+"$BCNAD" --maxconnections=1000 --daemon || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${white}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+while true
+do 
+ sleep 10
+ "$BCNACLI" getinfo > /dev/null 2>&1 && break || echo -e "${white}${yellow}Wait ${grey}...${white}" ;
+ sleep 10
+done
+echo -e "${grey}--> ${white}Activating MasterNode ${grey}...\n${white}"
+if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ]; then
+ "$BCNACLI" masternode start-many "$WALLETPASS" || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${white}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+else
+ "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${white}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+fi
+read -n 1 -s -r -p "$(echo -e "\n${grey}--> ${green}Press any key to continue ${grey}... \n${white}")"
 }
 
 varys
