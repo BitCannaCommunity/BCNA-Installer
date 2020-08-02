@@ -7,6 +7,8 @@
 
 # shellcheck disable=SC1001
 
+### IN DEVELOPMENT NOT USE Add MasterNode Menu !!!!
+
 BCNAMODE="NONE"
 
 varys(){
@@ -199,6 +201,10 @@ fi
 done
 }
 addnewmn(){
+
+echo " IN DEVELOPMENT NOT USE !!!!"
+
+
 echo -e "${grey}--> ${yellow}Your MasterNode Wallet are Encrypted with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${white}"
 read -r -p "" CRYPSN
 if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then
