@@ -371,27 +371,30 @@ backup(){
 echo -e "\n${grey}--> ${bld}${sbl}${green}Backup Wallet Info ${grey}:${bkwhite}\n"
 mkdir BCNABACKUP
 chmod -R 700 BCNABACKUP
-if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ;  then
- if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then 
-  "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
- fi
- BCNADUMP=$("$BCNACLI" dumpprivkey "$WLTADRS")
-elif [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then 
- BCNADUMP="$MNGENK"
+if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then 
+ "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
 fi
+BCNADUMP=$("$BCNACLI" dumpprivkey "$WLTADRS")
 cat <<EOF > "$BCNAHOME"/BCNABACKUP/walletinfo.txt
 Bitcanna Node Info
 
 Host:        $HOSTNAME
 IP:          $VPSIP
+
 Address:     $WLTADRS
-Passphrase : $WALLETPASS
 Private Key: $BCNADUMP
+Passphrase : $WALLETPASS
+
 RPC User:    $RPCUSR
 RPC Pass:    $RPCPWD
+
 EOF
+if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then 
+ echo "Masternode PrivateKey: $MNGENK" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
+ cp -f --preserve "$BCNACONF"/masternode.conf "$BCNAHOME"/BCNABACKUP/masternode.conf
+fi
 "$BCNACLI" backupwallet "$BCNAHOME"/BCNABACKUP/wallet.dat
-if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then cp -f --preserve "$BCNACONF"/masternode.conf "$BCNAHOME"/BCNABACKUP/masternode.conf; fi
+sleep 2
 echo -e "\n${grey}--> ${bkwhite}Compacting Files ${grey}...${bkwhite}\n"
 zip -r -q "$BCNAHOME"/WalletBackup "$BCNAHOME"/BCNABACKUP || tar --overwrite -zcvf "$BCNAHOME"/WalletBackup.tar.gz "$BCNAHOME"/BCNABACKUP
 chmod 600 "$BCNAHOME"/WalletBackup.*
