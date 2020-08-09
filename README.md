@@ -18,10 +18,11 @@ To Run the Masternode YOU NEED AT LEAST 100K (100.000) of BCNA (BitCanna Coins)!
 Please, Read the [BitCanna Whitepaper](https://www.bitcanna.io/whitepaper)
 
 
-# STATUS: *V2.00*
+# STATUS: *V2.01*
 
 *New:*
- - Add "Detect/Import wallet.dat/Private Key" options on BCNA-Script.sh  
+ - Add "Automatic Checker to MN (TXID, confirmations, ammount)" in BCNA-Script.sh
+ - In DEVELOPMENT: MasterNode Console (!!!ONLY!!! USE TO STOP AND START Bitcanna)
 
 *BCNA-Script.sh Container:*
  - Install / Upgrade / Remove Lastest BCNA Unix version
@@ -32,9 +33,10 @@ Please, Read the [BitCanna Whitepaper](https://www.bitcanna.io/whitepaper)
  - Adding bitcanna AS BINary (just type: $ bitcannd OR $ bitcanna-cli )
  - Import wallet/address using wallet.dat
  - Import a Private key
+ - Automatic TXID, confirmations, ammount on Receipt Transfer to Masternode Checker
  - Encrypt wallet.dat with password/passphrase
  - Backup (wallet.dat + wallet address + dumpprivkey + wallet passphrase = WalletBackup.tar.gz) - SAVE THIS FILE WITH YOUR OWN LIFE :)
- - If you liked, Donate !!! :)
+ - If you liked and was useful, feel free to Donate !!! :)
 
 *BCNA-Recalc.sh Container:*
  - Get Balance

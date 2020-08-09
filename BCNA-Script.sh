@@ -4,7 +4,7 @@
 #                NO OFFICIAL                 #   
 #--------------------------------------------#
 #--------------------------------------------#
-#               Version: V2.00               #
+#               Version: V2.01               #
 #          Donate BitCanna Address:          #
 # --> B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv <-- #
 #--------------------------------------------#
@@ -37,7 +37,7 @@ readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly VPSIP="$(curl -s ifconfig.me)"
-readonly SCRPTVER="V2.00"
+readonly SCRPTVER="V2.01"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
 dependencies(){
@@ -201,30 +201,61 @@ echo -e "${blk}${grey}--> ${bkwhite}TIME TO SEND SOME COINS TO YOUR wallet addre
 read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
 }
 walletmnconf(){
-echo -e "${grey}--> ${yellow}Set ID of this Masternode${grey}. Example${grey}: ${green}0 ${grey}(${bkwhite}Zer${green}0 ${grey}- ${bkwhite}To ${green}First ${bkwhite}Node${grey}, 1 ${grey}- ${bkwhite}To 2nd node${grey}, 2 ${grey}- ${bkwhite}To 3rd node${grey}... ${bkwhite}"
-read -r -p "" IDMN
-echo -e "${grey}--> ${yellow}Set Your MasterNode wallet Alias ${grey}(Example${grey}: ${green}MN0${grey}, ${green}MN1${grey}, ${green}MN2${grey})... ${bkwhite}"
-read -r -p "" MNALIAS
+read -r -p "$(echo -e "${grey}--> ${yellow}Set ID of this Masternode${grey}. Example${grey}: ${green}0 ${grey}(${bkwhite}Zer${green}0 ${grey}- ${bkwhite}To ${green}First ${bkwhite}Node${grey}, 1 ${grey}- ${bkwhite}To 2nd node${grey}, 2 ${grey}- ${bkwhite}To 3rd node${grey}... ${bkwhite}")" IDMN
+read -r -p "$(echo -e "${grey}--> ${yellow}Set Your MasterNode wallet Alias ${grey}(Example${grey}: ${green}MN0${grey}, ${green}MN1${grey}, ${green}MN2${grey})... ${bkwhite}")" MNALIAS
 echo -e "${grey}--> ${bkwhite}Generate your MasterNode Private Key ${grey}...${bkwhite}"
 readonly MNGENK=$("$BCNACLI" masternode genkey)
 echo -e "${grey}--> ${bkwhite}Creating NEW Address to MASTERNODE ${grey}-> ${green}$MNALIAS ${bkwhite}"
 readonly NEWWLTADRS=$("$BCNACLI" getnewaddress "$MNALIAS")
 readonly WLTADRS="$NEWWLTADRS"
 echo -e "\n${blk}${grey}--> ${bkwhite}\tTIME TO SEND ${red}100K${bkwhite} COINS TO YOUR ${green}$MNALIAS ${bkwhite}wallet address\n\tMy Label ${green}$MNALIAS${bkwhite} and Wallet Address Is: ${green}${sbl}${bld}$WLTADRS${bkwhite}\n\tMy Label ${green}$MNALIAS${bkwhite} and Wallet Private Key Is: ${green}${sbl}${bld}$MNGENK${bkwhite}\n\n"
+read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
 while true
 do
- echo -e "${grey}--> ${yellow}IDENTIFY YOUR TRANSACTION ID ${grey}!!! \n${bkwhite}"
- sleep 1
- echo -e "${grey}--> ${red}VERIFY ${grey}!!!!\n ${yellow}If you get +10 Confirmations of transaction ${grey}!!! \n${bkwhite}"
- read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
- "$BCNACLI" listtransactions
- echo -e "${grey}--> ${green}Have you IDENTIFY your transaction id ${grey}(${green}TXID${grey}) ? (${green}Y${grey}/${red}N${grey}) \n${bkwhite}"
- read -r -p "" CHOILIST
- case "$CHOILIST" in
-  y|Y) sleep 0.5 && break ;;
-  n|N) echo -e "${yellow}Please${grey}, ${yellow}You need wait +20 Confirmations to continue ${grey}...${bkwhite}" ;;
-  *) echo -e "\n\n${red}Really ${grey}!?!? ${red}Missed ${grey}!?\n\n" && sleep 0.5 ;;
-esac
+read -r -p "$(echo -e "${grey}--> ${green}Insert your TXID number${grey}:\n${bkwhite}")" MYCHECKTXID
+JBLOCK="txid"
+retrievedata
+if [ "$MYCHECKTXID" == "$JFINDATA" ] ; then
+ JBLOCK="category"
+ retrievedata
+ if [ "$JFINDATA" == "receive" ]; then
+  echo -e "\n${yellow}Transaction Information${grey}:${bkwhite}"
+  JBLOCK="txid"
+  retrievedata
+  echo -e "${green}TXID${grey}: ${yellow}$JFINDATA${bkwhite}"
+  JBLOCK="amount"
+  retrievedata
+  echo -e "${green}Amount${grey}: ${yellow}$JFINDATA${bkwhite}"
+  JBLOCK="address"
+  retrievedata
+  echo -e "${green}Address${grey}: ${yellow}$JFINDATA${bkwhite}"
+  JBLOCK="category"
+  retrievedata
+  echo -e "${green}category${grey}: ${yellow}$JFINDATA${bkwhite}\n"
+  while true
+  do
+  read -r -p "$(echo -e "${grey}--> ${yellow}CHECK THIS ${grey}!!!\n${yellow}IT IS your transaction id ${grey}(${green}TXID${grey})? (${green}Y${grey}/${red}N${grey}) \n${bkwhite}")" CHOILIST
+  case "$CHOILIST" in
+   y|Y) while true
+        do
+         JBLOCK="bcconfirmations"
+         retrievedata
+         echo "Confirmations: $JFINDATA"
+         [ "$JFINDATA" -gt "20" ] && echo "All Confirmations completed!!!" && sleep 1.5 && break || echo -e "${bkwhite}${yellow}Please Wait until get 20 confirmations${grey}...${bkwhite}" ;
+        sleep 5
+        done
+        break ;;
+   n|N) sleep 0.5 ;;
+   *) echo -e "\n\n${red}Really ${grey}!?!? ${red}Missed ${grey}!?\n\n${bkwhite}" && sleep 0.5 ;;
+  esac
+  done
+  break
+ else
+  echo -e "${red}No Receive transactions found${grey}...\n${bkwhite}" && sleep 1
+ fi
+else
+ echo -e "${red}No Transactions found${grey}...\n${bkwhite}" && sleep 1
+fi
 done
 echo -e "${grey}--> ${bkwhite}Auto-finding the Collateral Output ${green}TX ${bkwhite}and ${green}INDEX\n${bkwhite}"
 readonly MNID=$("$BCNACLI" masternode outputs | awk -F'"' '{print $2}')
@@ -234,8 +265,7 @@ sleep 5
 echo "externalip=$VPSIP" >> "$BCNACONF"/bitcanna.conf
 echo "port=$BCNAPORT" >> "$BCNACONF"/bitcanna.conf
 echo "$IDMN $MNALIAS $VPSIP:$BCNAPORT $MNGENK $MNID $MNTX" > "$BCNACONF"/masternode.conf
-echo -e "${grey}--> ${bkwhite}Running Bitcanna Wallet\n${bkwhite}\n\n${grey}--> ${bkwhite}You want Encrypt Bitcanna MasterNode Wallet with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${bkwhite}"
-read -r -p "" CRYPSN
+read -r -p "$(echo -e "${grey}--> ${bkwhite}Running Bitcanna Wallet\n${bkwhite}\n\n${grey}--> ${bkwhite}You want Encrypt Bitcanna MasterNode Wallet with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${bkwhite}")" CRYPSN
 if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then
  WALLETEXIST=0
  rundaemoncheck 
@@ -322,12 +352,14 @@ case "$choic" in
          break ;;
     k|K) echo -e "${bld}${green}Put PRIVATE KEY of Recovering wallet${grey}:"
 	     read -r WALLETPRIVK
-         "$BCNACLI" importprivkey "$WALLETPRIVK" MyBCNAWallet false
+         "$BCNACLI" importprivkey "$WALLETPRIVK" MyOldBCNAWallet false
          WALLETEXIST=0
 	     break ;;
 	n|N) echo -e "${grey}--> ${yellow} Creating a NEW Wallet${grey}... ${bkwhite}" 
-         WALLETEXIST=0
-         sleep 0.5 && break ;;
+         read -r -p "$(echo -e "${grey}--> ${yellow}Set Your wallet Alias ${grey}(Example${grey}: ${green}MyWallet${grey})${bkwhite}")" STKALIAS
+		 "$BCNACLI" setaccount "$WLTADRS" "$STKALIAS"
+		 WALLETEXIST=0
+		 sleep 0.5 && break ;;
     *) echo -e "${red}Really ${grey}!?!? ${red}Missed ${grey}!?" && sleep 0.5 ;;
 esac
 done
@@ -367,6 +399,10 @@ do
  sleep 10
 done
 }
+retrievedata(){
+JNUMDATA=$("$BCNACLI" listtransactions "$MNALIAS" | awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'"$JBLOCK"'\042/){print $(i+1)}}}' | tr -d '" ' | wc -l)
+JFINDATA=$("$BCNACLI" listtransactions "$MNALIAS" | awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'"$JBLOCK"'\042/){print $(i+1)}}}' | tr -d '" ' | sed -n "$JNUMDATA"p)
+}
 backup(){
 echo -e "\n${grey}--> ${bld}${sbl}${green}Backup Wallet Info ${grey}:${bkwhite}\n"
 mkdir BCNABACKUP
@@ -384,6 +420,7 @@ IP:          $VPSIP
 Address:     $WLTADRS
 Private Key: $BCNADUMP
 Passphrase : $WALLETPASS
+Label:       $STKALIAS$MNALIAS
 
 RPC User:    $RPCUSR
 RPC Pass:    $RPCPWD
