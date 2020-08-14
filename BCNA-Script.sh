@@ -4,7 +4,7 @@
 #                NO OFFICIAL                 #   
 #--------------------------------------------#
 #--------------------------------------------#
-#               Version: V2.01               #
+#               Version: V2.02               #
 #          Donate BitCanna Address:          #
 # --> B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv <-- #
 #--------------------------------------------#
@@ -37,7 +37,7 @@ readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly VPSIP="$(curl -s ifconfig.me)"
-readonly SCRPTVER="V2.01"
+readonly SCRPTVER="V2.02"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
 dependencies(){
@@ -129,6 +129,15 @@ echo -e "${grey}--> ${bkwhite}Putting Bitcanna Community Scripts on right place 
 ln -f BCNA-Installer/BCNA-ExtractPeerList.sh BCNA-ExtractPeerList.sh
 ln -f BCNA-Installer/BCNA-Recalc.sh BCNA-Recalc.sh
 sleep 0.5
+echo -e "\n${grey}--> ${bld}${sbl}${green}Preparing Backups Info structure ${grey}...${bkwhite}\n"
+mkdir "$BCNAHOME"/BCNABACKUP
+chmod -R 700 "$BCNAHOME"/BCNABACKUP
+cat <<EOF >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
+Bitcanna Node Info Generated in $DATENOW
+
+Host:        $HOSTNAME
+IP:          $VPSIP
+EOF
 }
 firstrun(){
 echo -e "${grey}--> ${bkwhite}First Run of Bitcanna Wallet ${grey}... ${bkwhite}"
@@ -146,6 +155,10 @@ chmod 600 "$BCNACONF"/bitcanna.conf
 echo -e "${grey}--> ${green}Random RPC User and Password generated ${grey}!!! ${bkwhite}"
 echo -e "${grey}--> ${yellow}Removing masternod.conf file ${grey}...${bkwhite}\n"
 [ -d "$BCNACONF"/masternode.conf ] && rm "$BCNACONF"/masternode.conf  > /dev/null 2>&1
+cat <<EOF >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
+RPC User:    $RPCUSR
+RPC Pass:    $RPCPWD
+EOF
 }
 choice(){
 firstrun
@@ -181,11 +194,18 @@ esac
 done
 }
 walletposconf(){
+WLTADRS=$("$BCNACLI" getaccountaddress wallet.dat)
 walletrec
+cat <<EOF >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
+Address:     $WLTADRS
+Label:       $STKALIAS
+EOF
 cryptwallet
 rundaemoncheck
-echo -e "\n\n${grey}--> ${bkwhite}Unlocking to Stake ${grey}!${bkwhite}"
+echo -e "\n\n${grey}--> ${bkwhite}Unlocking to Stake and backup data${grey}!${bkwhite}"
  "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+BCNADUMP=$("$BCNACLI" dumpprivkey "$WLTADRS")
+echo "Private Key: $BCNADUMP" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
 echo -e "${grey}--> ${green}What amount to set Split Stake ${grey}(${yellow}1 ${grey}- ${yellow}999999${grey}) ${grey}?${bkwhite}\n"
 read -r STAKE
 "$BCNACLI" setstakesplitthreshold "$STAKE"
@@ -194,7 +214,6 @@ sleep 2
 "$BCNACLI" walletlock
 echo -e "\n${grey}--> ${bkwhite}Set to Staking forever ${grey}...${bkwhite}"
  "$BCNACLI" walletpassphrase "$WALLETPASS" 0 true || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
-WLTADRS=$("$BCNACLI" getaccountaddress wallet.dat)
 echo -e "\n${grey}--> ${green}CONGRATULATIONS ${grey}!! ${green}BitCanna POS ${grey}- ${green}Proof-Of-Stake Configurations COMPLETED ${grey}!!!${bkwhite}\n"
 sleep 1.5
 echo -e "${blk}${grey}--> ${bkwhite}TIME TO SEND SOME COINS TO YOUR wallet address\n      My Wallet Address Is: ${green}${sbl}${bld}$WLTADRS${bkwhite}\n\n"
@@ -205,10 +224,17 @@ read -r -p "$(echo -e "${grey}--> ${yellow}Set ID of this Masternode${grey}. Exa
 read -r -p "$(echo -e "${grey}--> ${yellow}Set Your MasterNode wallet Alias ${grey}(Example${grey}: ${green}MN0${grey}, ${green}MN1${grey}, ${green}MN2${grey})... ${bkwhite}")" MNALIAS
 echo -e "${grey}--> ${bkwhite}Generate your MasterNode Private Key ${grey}...${bkwhite}"
 readonly MNGENK=$("$BCNACLI" masternode genkey)
+echo "Masternode PrivateKey: $MNGENK" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
+echo "Masternode ID: $IDMN" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
 echo -e "${grey}--> ${bkwhite}Creating NEW Address to MASTERNODE ${grey}-> ${green}$MNALIAS ${bkwhite}"
-readonly NEWWLTADRS=$("$BCNACLI" getnewaddress "$MNALIAS")
-readonly WLTADRS="$NEWWLTADRS"
-echo -e "\n${blk}${grey}--> ${bkwhite}\tTIME TO SEND ${red}100K${bkwhite} COINS TO YOUR ${green}$MNALIAS ${bkwhite}wallet address\n\tMy Label ${green}$MNALIAS${bkwhite} and Wallet Address Is: ${green}${sbl}${bld}$WLTADRS${bkwhite}\n\tMy Label ${green}$MNALIAS${bkwhite} and Wallet Private Key Is: ${green}${sbl}${bld}$MNGENK${bkwhite}\n\n"
+readonly WLTADRS=$("$BCNACLI" getnewaddress "$MNALIAS")
+BCNADUMP=$("$BCNACLI" dumpprivkey "$WLTADRS")
+cat <<EOF >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
+MN Wallet Address:     $WLTADRS
+MN Wallet Label:       $MNALIAS
+MN Wallet PrivateKey:  $BCNADUMP
+EOF
+echo -e "\n${blk}${grey}--> ${bkwhite}\tTIME TO SEND ${red}100K${bkwhite} COINS TO YOUR ${green}$MNALIAS ${bkwhite}wallet address\n\tMy Label ${green}$MNALIAS${bkwhite} and Wallet Address Is: ${green}${sbl}${bld}$WLTADRS${bkwhite}\n\tMy Label ${green}$MNALIAS${bkwhite} and MN Wallet Private Key Is: ${green}${sbl}${bld}$BCNADUMP${bkwhite}\n\tMy Label ${green}$MNALIAS${bkwhite} and Masternode Private Key Is: ${green}${sbl}${bld}$MNGENK${bkwhite}\n\n"
 read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
 while true
 do
@@ -260,11 +286,13 @@ done
 echo -e "${grey}--> ${bkwhite}Auto-finding the Collateral Output ${green}TX ${bkwhite}and ${green}INDEX\n${bkwhite}"
 readonly MNID=$("$BCNACLI" masternode outputs | awk -F'"' '{print $2}')
 readonly MNTX=$("$BCNACLI" masternode outputs | awk -F'"' '{print $4}')
+sleep 0.5
 "$BCNACLI" stop
 sleep 5
 echo "externalip=$VPSIP" >> "$BCNACONF"/bitcanna.conf
 echo "port=$BCNAPORT" >> "$BCNACONF"/bitcanna.conf
 echo "$IDMN $MNALIAS $VPSIP:$BCNAPORT $MNGENK $MNID $MNTX" > "$BCNACONF"/masternode.conf
+cp -f --preserve "$BCNACONF"/masternode.conf "$BCNAHOME"/BCNABACKUP/masternode.conf
 read -r -p "$(echo -e "${grey}--> ${bkwhite}Running Bitcanna Wallet\n${bkwhite}\n\n${grey}--> ${bkwhite}You want Encrypt Bitcanna MasterNode Wallet with passphrase${grey}? ${grey}(${green}Y${grey}/${red}NO${grey})\n${bkwhite}")" CRYPSN
 if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then
  WALLETEXIST=0
@@ -356,7 +384,7 @@ case "$choic" in
          WALLETEXIST=0
 	     break ;;
 	n|N) echo -e "${grey}--> ${yellow} Creating a NEW Wallet${grey}... ${bkwhite}" 
-         read -r -p "$(echo -e "${grey}--> ${yellow}Set Your wallet Alias ${grey}(Example${grey}: ${green}MyWallet${grey})${bkwhite}")" STKALIAS
+         read -r -p "$(echo -e "${grey}--> ${yellow}Set Your wallet Label ${grey}(Example${grey}: ${green}MyWallet${grey})${bkwhite}")" STKALIAS
 		 "$BCNACLI" setaccount "$WLTADRS" "$STKALIAS"
 		 WALLETEXIST=0
 		 sleep 0.5 && break ;;
@@ -373,6 +401,7 @@ if [ "$WALLETEXIST" -eq 0 ] ; then
   echo -e "${bld}${green}Set PassPhrase to wallet.dat${grey}:" && read -rsp "" WALLETPASS
   echo -e "${bld}${yellow}Repeat PassPhrase again${grey}: ${bkwhite}" && read -rsp "" WALLETPASSS
  done
+ echo "Wallet Passphrase : $WALLETPASS" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
  "$BCNACLI" encryptwallet "$WALLETPASS" || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
  sleep 3
  echo -e "${grey}--> ${green}Bitcanna wallet.dat Encrypted ${grey}!!!${bkwhite}\n\n"
@@ -404,34 +433,11 @@ JNUMDATA=$("$BCNACLI" listtransactions "$MNALIAS" | awk -F"[,:}]" '{for(i=1;i<=N
 JFINDATA=$("$BCNACLI" listtransactions "$MNALIAS" | awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'"$JBLOCK"'\042/){print $(i+1)}}}' | tr -d '" ' | sed -n "$JNUMDATA"p)
 }
 backup(){
-echo -e "\n${grey}--> ${bld}${sbl}${green}Backup Wallet Info ${grey}:${bkwhite}\n"
-mkdir BCNABACKUP
-chmod -R 700 BCNABACKUP
 if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then 
  "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false
 fi
-BCNADUMP=$("$BCNACLI" dumpprivkey "$WLTADRS")
-cat <<EOF > "$BCNAHOME"/BCNABACKUP/walletinfo.txt
-Bitcanna Node Info
-
-Host:        $HOSTNAME
-IP:          $VPSIP
-
-Address:     $WLTADRS
-Private Key: $BCNADUMP
-Passphrase : $WALLETPASS
-Label:       $STKALIAS$MNALIAS
-
-RPC User:    $RPCUSR
-RPC Pass:    $RPCPWD
-
-EOF
-if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then 
- echo "Masternode PrivateKey: $MNGENK" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
- cp -f --preserve "$BCNACONF"/masternode.conf "$BCNAHOME"/BCNABACKUP/masternode.conf
-fi
 "$BCNACLI" backupwallet "$BCNAHOME"/BCNABACKUP/wallet.dat
-sleep 2
+sleep 0.5
 echo -e "\n${grey}--> ${bkwhite}Compacting Files ${grey}...${bkwhite}\n"
 zip -r -q "$BCNAHOME"/WalletBackup "$BCNAHOME"/BCNABACKUP || tar --overwrite -zcvf "$BCNAHOME"/WalletBackup.tar.gz "$BCNAHOME"/BCNABACKUP
 chmod 600 "$BCNAHOME"/WalletBackup.*
