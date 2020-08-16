@@ -4,7 +4,7 @@
 #                NO OFFICIAL                 #   
 #--------------------------------------------#
 #--------------------------------------------#
-#               Version: V2.02               #
+#               Version: V2.03               #
 #          Donate BitCanna Address:          #
 # --> B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv <-- #
 #--------------------------------------------#
@@ -37,7 +37,7 @@ readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly VPSIP="$(curl -s ifconfig.me)"
-readonly SCRPTVER="V2.02"
+readonly SCRPTVER="V2.03"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
 dependencies(){
@@ -196,10 +196,7 @@ done
 walletposconf(){
 WLTADRS=$("$BCNACLI" getaccountaddress wallet.dat)
 walletrec
-cat <<EOF >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
-Address:     $WLTADRS
-Label:       $STKALIAS
-EOF
+echo "Wallet Address:     $WLTADRS" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
 cryptwallet
 rundaemoncheck
 echo -e "\n\n${grey}--> ${bkwhite}Unlocking to Stake and backup data${grey}!${bkwhite}"
@@ -384,9 +381,7 @@ case "$choic" in
          WALLETEXIST=0
 	     break ;;
 	n|N) echo -e "${grey}--> ${yellow} Creating a NEW Wallet${grey}... ${bkwhite}" 
-         read -r -p "$(echo -e "${grey}--> ${yellow}Set Your wallet Label ${grey}(Example${grey}: ${green}MyWallet${grey})${bkwhite}")" STKALIAS
-		 "$BCNACLI" setaccount "$WLTADRS" "$STKALIAS"
-		 WALLETEXIST=0
+         WALLETEXIST=0
 		 sleep 0.5 && break ;;
     *) echo -e "${red}Really ${grey}!?!? ${red}Missed ${grey}!?" && sleep 0.5 ;;
 esac
@@ -479,7 +474,7 @@ sleep 1.5
 }
 concl(){
 echo -e "${bkwhite}${green}\n\t\t __    ___  __  \n\t\t|__) |  |  /  \`  /\  |\ | |\ |  /\  \n\t\t|__) |  |  \__, /~~\ | \| | \| /~~\ ${bkwhite}\n\n"
-echo -e "${green}\tProject Ver${grey}: ${bld}${bkwhite}$SCRPTVER ${bkwhite}\n\tby hellresistor\n\n\tDonation with Bitcanna\n\t${green}BCNA${grey}: ${yellow}${bld}${sbl}$DONATE${bkwhite}\n${endc}"
+echo -e "${green}\tProject Ver${grey}: ${bld}${bkwhite}$SCRPTVER${green}\n\tby${grey}: ${bld}${bkwhite} hellresistor\n\n\tDonation with Bitcanna\n\t${green}BCNA${grey}: ${yellow}${bld}${sbl}$DONATE${bkwhite}\n${endc}"
 }
 ###############
 #### Start ####
