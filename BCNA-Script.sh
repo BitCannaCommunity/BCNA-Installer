@@ -24,13 +24,13 @@ export grey=${bkwhite}$'\e[1;38;5;252m'
 varys(){
 # System variables
 DATENOW=$(date +"%Y%m%d%H%M%S")
-readonly packages=("unzip")
+readonly packages=("unzip" "zip")
 readonly BCNAREP="https://github.com/BitCannaGlobal/BCNA/releases/download"
 readonly GETLAST=$(curl --silent "https://api.github.com/repos/BitCannaGlobal/BCNA/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 readonly GETLASTBOOT=$(curl --silent "https://api.github.com/repos/BitCannaCommunity/Bootstrap/releases/latest" | grep -Po '"name": "\K.*?(?=.zip)')
 readonly BCNABOOT=$(curl --silent "https://api.github.com/repos/BitCannaCommunity/Bootstrap/releases/latest" | grep 'browser_' | cut -d\" -f4)
 readonly BCNAPKG="bcna-$GETLAST-unix"
-readonly BCNAHOME="$PWD"
+readonly BCNAHOME="$HOME"
 readonly BCNACONF=".bitcanna"
 readonly BCNADIR="Bitcanna"
 readonly BCNAPORT="12888"
@@ -91,6 +91,7 @@ elif [ "$choix" == "r" ] || [ "$choix" == "R" ]; then
    cp -f -r --preserve "$BCNACONF" "$BCNACONF"."$DATENOW"
    mess
    rm BCNA-Console.sh
+   sed -i '/BCNACONSOLE/,/BCNACONSOLE/d' "$BCNAHOME"/.bashrc
    rm BCNA-ExtractPeerList.sh
    rm BCNA-Recalc.sh
    rm -R "$BCNACONF"
@@ -131,7 +132,6 @@ ln -f BCNA-Installer/BCNA-Recalc.sh BCNA-Recalc.sh
 sleep 0.5
 echo -e "\n${grey}--> ${bld}${sbl}${green}Preparing Backups Info structure ${grey}...${bkwhite}\n"
 mkdir "$BCNAHOME"/BCNABACKUP
-chmod -R 700 "$BCNAHOME"/BCNABACKUP
 cat <<EOF >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
 Bitcanna Node Info Generated in $DATENOW
 
@@ -434,7 +434,7 @@ fi
 "$BCNACLI" backupwallet "$BCNAHOME"/BCNABACKUP/wallet.dat
 sleep 0.5
 echo -e "\n${grey}--> ${bkwhite}Compacting Files ${grey}...${bkwhite}\n"
-zip -r -q "$BCNAHOME"/WalletBackup "$BCNAHOME"/BCNABACKUP || tar --overwrite -zcvf "$BCNAHOME"/WalletBackup.tar.gz "$BCNAHOME"/BCNABACKUP
+zip -r -q "$BCNAHOME"/WalletBackup BCNABACKUP || tar --overwrite -zcvf "$BCNAHOME"/WalletBackup.tar.gz BCNABACKUP
 chmod 600 "$BCNAHOME"/WalletBackup.*
 echo -e "\n\n${grey}--> ${bkwhite}Info Wallet Backuped on${grey}:${bld}${sbl}${green} $BCNAHOME/WalletBackup.tar.gz \n${yellow}\t${grey}!!! ${yellow}PLEASE ${grey}!!!\n${red}\tSAVE THIS FILE IN MANY DEVICES IN A SECURE PLACE${bkwhite}\n"
 read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
@@ -448,10 +448,12 @@ if [ "$MYTERM" == "Y" ] || [ "$MYTERM" == "y" ] ; then
  if grep -Fxq "BCNA-Console.sh" "$BCNAHOME"/.bashrc ; then
   echo -e "${grey}--> ${yellow}BCNA-Console.sh Existing on $BCNAHOME/.bashrc ${grey}!!!${bkwhite}\n"
  else
-  cat <<EOF >> "$BCNAHOME"/.bashrc
-if [ -f ~/BCNA-Console.sh ]; then
+ cat <<EOF >> "$BCNAHOME"/.bashrc
+### BCNACONSOLE ###
+if [ -f "$BCNAHOME"/BCNA-Console.sh ]; then
  . BCNA-Console.sh
 fi
+### BCNACONSOLE ###
 EOF
   echo -e "${grey}--> ${bkwhite}Bitcanna Terminal set for user ${green}$USER ${grey}!!!${bkwhite}\n"
  fi
@@ -463,10 +465,10 @@ fi
 mess(){
 echo -e "${grey}--> ${yellow}Cleaning the things ${grey}...${bkwhite}"
 [ -d "$(find "$BCNAHOME" -name "*MACOSX*" )" ] && rm -R -f "$BCNAHOME"/*MACOSX*
-[ -d "$(find "$BCNAHOME" -name "unix-*" )" ] && rm -R -f unix-*
-[ -d "$(find "$BCNAHOME" -name "unix_*" )" ] && rm -R -f unix_*
-[ -d "$(find "$BCNAHOME" -name "$BCNAPKG" )" ] && rm -R -f bcna-"$GETLAST"-unix*
-[ -d "$(find "$BCNAHOME" -name "BCNABACKUP" )" ] && rm -R -f BCNABACKUP
+[ -d "$(find "$BCNAHOME" -name "unix-*" )" ] && rm -R -f "$BCNAHOME"/unix-*
+[ -d "$(find "$BCNAHOME" -name "unix_*" )" ] && rm -R -f "$BCNAHOME"/unix_*
+[ -d "$(find "$BCNAHOME" -name "$BCNAPKG" )" ] && rm -R -f "$BCNAHOME"/bcna-"$GETLAST"-unix*
+[ -d "$(find "$BCNAHOME" -name "BCNABACKUP" )" ] && rm -R -f "$BCNAHOME"/BCNABACKUP
 [ -d "$(find "$BCNAHOME" -name "$BCNADIR" )" ] && rm -R -f "$BCNADIR"
 [[ "$choicc" == "b" || "$choicc" == "B" ]] && rm "$BCNACONF"/bootstrap.dat.old
 echo "${grey}--> ${green}Cleaned unecessary storage ${grey}!!!${bkwhite}"
