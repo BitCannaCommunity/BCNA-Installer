@@ -4,7 +4,7 @@
 #                NO OFFICIAL                 #   
 #--------------------------------------------#
 #--------------------------------------------#
-#               Version: V2.03               #
+#               Version: V2.04               #
 #          Donate BitCanna Address:          #
 # --> B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv <-- #
 #--------------------------------------------#
@@ -25,6 +25,7 @@ varys(){
 # System variables
 DATENOW=$(date +"%Y%m%d%H%M%S")
 readonly packages=("unzip" "zip")
+readonly temp_counter="30"
 readonly BCNAREP="https://github.com/BitCannaGlobal/BCNA/releases/download"
 readonly GETLAST=$(curl --silent "https://api.github.com/repos/BitCannaGlobal/BCNA/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 readonly GETLASTBOOT=$(curl --silent "https://api.github.com/repos/BitCannaCommunity/Bootstrap/releases/latest" | grep -Po '"name": "\K.*?(?=.zip)')
@@ -37,7 +38,7 @@ readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly VPSIP="$(curl -s ifconfig.me)"
-readonly SCRPTVER="V2.03"
+readonly SCRPTVER="V2.04"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
 }
 dependencies(){
@@ -200,7 +201,7 @@ echo "Wallet Address:     $WLTADRS" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
 cryptwallet
 rundaemoncheck
 echo -e "\n\n${grey}--> ${bkwhite}Unlocking to Stake and backup data${grey}!${bkwhite}"
- "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ "$BCNACLI" walletpassphrase "$WALLETPASS" 0 false || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}\n${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; sleep 3; "$BCNACLI" stop ; exit 1; }
 BCNADUMP=$("$BCNACLI" dumpprivkey "$WLTADRS")
 echo "Private Key: $BCNADUMP" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
 echo -e "${grey}--> ${green}What amount to set Split Stake ${grey}(${yellow}1 ${grey}- ${yellow}999999${grey}) ${grey}?${bkwhite}\n"
@@ -210,15 +211,15 @@ echo -e "${grey}--> ${bkwhite}Staking with ${green}$STAKE ${grey}!!!${bkwhite}"
 sleep 2
 "$BCNACLI" walletlock
 echo -e "\n${grey}--> ${bkwhite}Set to Staking forever ${grey}...${bkwhite}"
- "$BCNACLI" walletpassphrase "$WALLETPASS" 0 true || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ "$BCNACLI" walletpassphrase "$WALLETPASS" 0 true || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}\n${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; sleep 3; "$BCNACLI" stop ; exit 1; }
 echo -e "\n${grey}--> ${green}CONGRATULATIONS ${grey}!! ${green}BitCanna POS ${grey}- ${green}Proof-Of-Stake Configurations COMPLETED ${grey}!!!${bkwhite}\n"
 sleep 1.5
 echo -e "${blk}${grey}--> ${bkwhite}TIME TO SEND SOME COINS TO YOUR wallet address\n      My Wallet Address Is: ${green}${sbl}${bld}$WLTADRS${bkwhite}\n\n"
 read -n 1 -s -r -p "$(echo -e "${grey}--> ${green}Press any key to continue ${grey}... \n${bkwhite}")"
 }
 walletmnconf(){
-read -r -p "$(echo -e "${grey}--> ${yellow}Set ID of this Masternode${grey}. Example${grey}: ${green}0 ${grey}(${bkwhite}Zer${green}0 ${grey}- ${bkwhite}To ${green}First ${bkwhite}Node${grey}, 1 ${grey}- ${bkwhite}To 2nd node${grey}, 2 ${grey}- ${bkwhite}To 3rd node${grey}... ${bkwhite}")" IDMN
-read -r -p "$(echo -e "${grey}--> ${yellow}Set Your MasterNode wallet Alias ${grey}(Example${grey}: ${green}MN0${grey}, ${green}MN1${grey}, ${green}MN2${grey})... ${bkwhite}")" MNALIAS
+read -r -p "$(echo -e "${grey}--> ${yellow}Set ID of this Masternode${grey}. Example${grey}: ${green}0 ${grey}(${bkwhite}Zer${green}0 ${grey}- ${bkwhite}To ${green}First ${bkwhite}Node${grey}, 1 ${grey}- ${bkwhite}To 2nd node${grey}, 2 ${grey}- ${bkwhite}To 3rd node${grey}... :\n${bkwhite}")" IDMN
+read -r -p "$(echo -e "${grey}--> ${yellow}Set Your MasterNode wallet Alias ${grey}(Example${grey}: ${green}MN0${grey}, ${green}MN1${grey}, ${green}MN2${grey})... : \n${bkwhite}")" MNALIAS
 echo -e "${grey}--> ${bkwhite}Generate your MasterNode Private Key ${grey}...${bkwhite}"
 readonly MNGENK=$("$BCNACLI" masternode genkey)
 echo "Masternode PrivateKey: $MNGENK" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
@@ -263,9 +264,14 @@ if [ "$MYCHECKTXID" == "$JFINDATA" ] ; then
         do
          JBLOCK="bcconfirmations"
          retrievedata
-         echo "Confirmations: $JFINDATA"
-         [ "$JFINDATA" -gt "20" ] && echo "All Confirmations completed!!!" && sleep 1.5 && break || echo -e "${bkwhite}${yellow}Please Wait until get 20 confirmations${grey}...${bkwhite}" ;
-        sleep 5
+         echo -e "${yellow}Confirmations${grey}: ${green}$JFINDATA${bkwhite}"
+         [ "$JFINDATA" -gt "20" ] && echo -e "${green}All Confirmations completed ${grey}!!!${bkwhite}" && sleep 1.5 && break || echo -e "${bkwhite}${yellow}Please Wait until get 20 confirmations${grey}...${bkwhite}" ;
+		 while [[ ${temp_counter} -gt 0 ]];
+		 do
+		  printf "\rChecking... %2d second(s) remaining!" ${temp_counter}
+		  sleep 1
+		  ((temp_counter--))
+		 done
         done
         break ;;
    n|N) sleep 0.5 ;;
@@ -296,7 +302,8 @@ if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ] ; then
  rundaemoncheck 
  cryptwallet
  sleep 5
- "$BCNAD" --maxconnections=1000 --daemon || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ "$BCNAD" --maxconnections=1000 --daemon || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}\n${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; sleep 3; "$BCNACLI" stop ; exit 1; }
+ syncheck
 else
  rundaemoncheck
  echo -e "${grey}--> ${red}                ATTENTION ${grey}!!!! \n${grey}--> ${yellow} YOUR WALLET IS ${red}NOT ${yellow}PROTECTED WITH PASSWORD ${grey}!!!!${bkwhite}\n"
@@ -304,9 +311,9 @@ else
 fi
 echo -e "${grey}--> ${bkwhite}Activating MasterNode ${grey}...\n${bkwhite}"
 if [ "$CRYPSN" == "y" ] || [ "$CRYPSN" == "Y" ]; then
- "$BCNACLI" masternode start-many "$WALLETPASS" || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ "$BCNACLI" masternode start-many "$WALLETPASS" || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}\n${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; sleep 3; "$BCNACLI" stop ; exit 1; }
 else
- "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Masternode Failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ "$BCNACLI" masternode start-many || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}\n${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; sleep 3; "$BCNACLI" stop ; exit 1; }
 fi
 }
 syncr(){
@@ -397,7 +404,7 @@ if [ "$WALLETEXIST" -eq 0 ] ; then
   echo -e "${bld}${yellow}Repeat PassPhrase again${grey}: ${bkwhite}" && read -rsp "" WALLETPASSS
  done
  echo "Wallet Passphrase : $WALLETPASS" >> "$BCNAHOME"/BCNABACKUP/walletinfo.txt
- "$BCNACLI" encryptwallet "$WALLETPASS" || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}"; sleep 1; echo -e "${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; "$BCNACLI" stop ; exit 1; }
+ "$BCNACLI" encryptwallet "$WALLETPASS" || { echo -e "${grey}--> ${red}Bitcanna Wallet password failed\nExiting${grey}...${bkwhite}\n${red}ERROR ${grey}!! ${red}Power off Bitcanna Daemon ${grey}...${endc}"; sleep 3; "$BCNACLI" stop ; exit 1; }
  sleep 3
  echo -e "${grey}--> ${green}Bitcanna wallet.dat Encrypted ${grey}!!!${bkwhite}\n\n"
  sleep 1

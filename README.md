@@ -18,10 +18,10 @@ To Run the Masternode YOU NEED AT LEAST 100K (100.000) of BCNA (BitCanna Coins)!
 Please, Read the [BitCanna Whitepaper](https://www.bitcanna.io/whitepaper)
 
 
-# STATUS: *V2.02*
+# STATUS: *V2.04*
 
 *New:*
- - Improvement on Backing-Up wallet/node data 
+ - In DEVELOPMENT: MasterNode Console (!!!ONLY!!! USE TO STOP AND START Bitcanna)
 
 *BCNA-Script.sh Container:*
  - Install / Upgrade / Remove Lastest BCNA Unix version
