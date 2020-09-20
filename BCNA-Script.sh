@@ -136,6 +136,7 @@ touch "$BCNACONF"/bitcanna.conf
 RPCPWD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
 echo "rpcuser=bitcanna$USER
 rpcpassword=$RPCPWD
+port=$BCNAPORT
 listen=1
 server=1
 daemon=1
