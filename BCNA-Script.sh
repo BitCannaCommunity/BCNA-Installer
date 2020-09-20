@@ -142,9 +142,10 @@ daemon=1
 txindex=1
 maxconnections=1000
 enablezeromint=0
-banscore=50
-staking=1" >> "$BCNACONF"/bitcanna.conf
-if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then
+banscore=50" >> "$BCNACONF"/bitcanna.conf
+if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ;  then
+ echo "staking=1" >> "$BCNACONF"/bitcanna.conf
+elif [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then
  echo "staking=0" >> "$BCNACONF"/bitcanna.conf
 fi
 chmod 600 "$BCNACONF"/bitcanna.conf
