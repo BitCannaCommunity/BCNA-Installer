@@ -18,10 +18,10 @@ To Run the Masternode YOU NEED AT LEAST 100K (100.000) of BCNA (BitCanna Coins)!
 Please, Read the [BitCanna Whitepaper](https://www.bitcanna.io/whitepaper)
 
 
-# STATUS: *V2.04*
+# STATUS: *V2.20*
 
 *New:*
- - In DEVELOPMENT: MasterNode Console (!!!ONLY!!! USE TO STOP AND START Bitcanna)
+ - Add System arch detection
 
 *BCNA-Script.sh Container:*
  - Install / Upgrade / Remove Lastest BCNA Unix version
@@ -46,7 +46,7 @@ Please, Read the [BitCanna Whitepaper](https://www.bitcanna.io/whitepaper)
  - Get List of Ip and Port of Connected nodes.
  - Export and Sort into 'ExtractPeerList.txt' file.
  
-*BCNA-Console.sh Container:
+*BCNA-Console.sh Container:*
  - In DEVELOPMENT: MasterNode Console (!!!ONLY!!! USE TO STOP AND START Bitcanna)
  - Get Wallet Address
  - Check Masternode/POS status
@@ -54,6 +54,7 @@ Please, Read the [BitCanna Whitepaper](https://www.bitcanna.io/whitepaper)
  - Set Stake value
  - Extract IP Peer List
  - Get Blockchain and network information
+
 
 # Requirements: 
 

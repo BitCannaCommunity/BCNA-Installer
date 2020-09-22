@@ -4,7 +4,7 @@
 #                NO OFFICIAL                 #   
 #--------------------------------------------#
 #--------------------------------------------#
-#               Version: V2.04               #
+#               Version: V2.20               #
 #          Donate BitCanna Address:          #
 # --> B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv <-- #
 #--------------------------------------------#
@@ -24,7 +24,6 @@ export grey=${bkwhite}$'\e[1;38;5;252m'
 varys(){
 # System variables
 DATENOW=$(date +"%Y%m%d%H%M%S")
-readonly packages=("unzip" "zip")
 readonly temp_counter="30"
 readonly BCNAREP="https://github.com/BitCannaGlobal/BCNA/releases/download"
 readonly GETLAST=$(curl --silent "https://api.github.com/repos/BitCannaGlobal/BCNA/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
@@ -38,20 +37,8 @@ readonly BCNAPORT="12888"
 readonly BCNACLI="bitcanna-cli"
 readonly BCNAD="bitcannad"
 readonly VPSIP="$(curl -s ifconfig.me)"
-readonly SCRPTVER="V2.04"
+readonly SCRPTVER="V2.20"
 readonly DONATE="B73RRFVtndfPRNSgSQg34yqz4e9eWyKRSv"
-}
-dependencies(){
-sudo apt update > /dev/null 2>&1
-for i in "${packages[@]}"
-do
-    command -v "$i" > /dev/null 2>&1 || { 
-        echo -e >&2 "${grey}--> ${bkwhite}Package(s) ${green}$i ${bkwhite}required ${grey}!!!${bkwhite}\n";
-        echo -e "${grey}--> ${bkwhite}Installing ${green}$i ${bkwhite}package ${grey}...${bkwhite}\n"; 
-        sleep 0.5 ;
-        sudo apt install "$i" > /dev/null 2>&1 ;
-    }
-done
 }
 intro(){
 echo -e "${bkwhite}\n${green}  bbc                              Script Contribution to BitCanna Community\n${green}  bbb                                     to Ubuntu 18.04 LTS Server\n${green}  bbbbb                            ${grey}-------------------------------------------\n${green}  bbbbb                              ${bkwhite}Executing this script you are Allow to${grey}:\n${green}  bbbbb   cbcb          bbbbbb \n${green}  bbbbb bbbbbbbbb     bbbbbbbbbb     ${grey}- ${bkwhite}Install ${bkwhite}/ ${bkwhite}Update ${bkwhite}/ ${bkwhite}Remove BCNA Wallet\n${green}  bbbcb bbbbbbbbbb   cbbbbbbcbbbb    ${grey}- ${bkwhite}Configure Full Node ${grey}(${bkwhite}Proof-Of-Stake${grey})\n${green}  bbbbbbbb    bbbbbibbbb      cbbb   ${grey}- ${bkwhite}Configure Master Node ${grey}(${bkwhite}MN${grey})\n${green}  bbbbib        bbb bibbb  \n${green}  bbbbib         bbbbbb             ${grey}------------------------------------------\n${green}  bbbbbb         bbbbbb  \n${green}  bbcbbb         bbbbcb                       ${bkwhite}Project Ver${grey}: ${bld}${yellow}$SCRPTVER${green}\n${green}  bbbbbb         bbbbbcb \n${green}  bbbbbbbb      bbbbbbbbbc     cbbb              ${bkwhite}by hellresistor \n${green}    bbbbbbbbbbbbbcbb bbbbbbbbbbbbb   ${bkwhite}Support donate seeds/CBD with Bitcanna\n${green}     bbbbbbbbbbb bbb cbbbbbbbbbib \n${green}       bbbbbbbbb       bbbbibbbb    ${bkwhite}BCNA${grey}: ${yellow}${bld}${sbl}$DONATE${bkwhite}\n\n\n${bld}${sbl}${red}    HAVE IN MIND!! EVERY TIME DO YOUR OWN BACKUPS BEFORE USING THIS SCRIPT\n${bld}${sbl}${red}           I have NO responsability about system/wallet corruption!\n${bld}${sbl}${yellow}                       Use this Script at your own risk!${bkwhite}\n\n"
@@ -82,7 +69,7 @@ elif [ "$choix" == "u" ] || [ "$choix" == "U" ]; then
    mess
    echo -e "${grey}--> ${green}Bitcanna Wallet Updated to NEW version: $GETLAST ${bkwhite}\n To start wallet run: bitcannad -daemon" && sleep 0.5
   else
-   echo -e "${grey}--> ${red}Can not find Bitcanna Wallet ${grey}!!!\n${green}Install It First ${grey}!!!\n${bkwhite}" && exit 1
+   echo -e "${grey}--> ${red}Can not find Bitcanna Wallet ${grey}!!!\n${green}Install It First ${grey}!!!\n${endc}" && exit 1
   fi
 elif [ "$choix" == "r" ] || [ "$choix" == "R" ]; then 
  if [[ -a $(find "/usr/bin" -name "$BCNAD") ]] ; then
@@ -100,7 +87,7 @@ elif [ "$choix" == "r" ] || [ "$choix" == "R" ]; then
    sudo rm -f /usr/bin/bitcanna*
    echo -e "${grey}--> ${red}Bitcanna Wallet ${green}FULLY ${red}Removed ${grey}!!!${bkwhite}"
   else
-   echo -e "${grey}--> ${red}Bitcanna Wallet not exist!\n${green}Install it${grey}...\n${bkwhite}" && exit 1
+   echo -e "${grey}--> ${red}Bitcanna Wallet not exist!\n${green}Install it${grey}...\n${endc}" && exit 1
   fi
  else
   echo -e "${grey}--> ${red}Choose a correct option${grey}!\n${red}Exiting${grey}...${endc}" && exit 1
@@ -125,7 +112,7 @@ else
 fi
 echo -e "${grey}--> ${bkwhite}Copy binaries to right place ${grey}!!\n${bkwhite}"
 sudo cp -f "$BCNADIR"/* /usr/bin
-sudo chmod 777 /usr/bin/bitcanna* 
+sudo chmod -R a+rwx /usr/bin/bitcanna* 
 echo -e "${grey}--> ${green}Downloaded and Extracted to${grey}: ${green}$BCNADIR${bkwhite}"
 echo -e "${grey}--> ${bkwhite}Putting Bitcanna Community Scripts on right place ${grey}...\n${bkwhite}"
 ln -f BCNA-Installer/BCNA-ExtractPeerList.sh BCNA-ExtractPeerList.sh
@@ -144,12 +131,22 @@ firstrun(){
 echo -e "${grey}--> ${bkwhite}First Run of Bitcanna Wallet ${grey}... ${bkwhite}"
 echo -e "${grey}--> ${bkwhite}Lets Generate Random RPC User and Password ${grey}... ${bkwhite}"
 mkdir "$BCNACONF" > /dev/null 2>&1
+sudo chmod -R a+rwx "$BCNACONF"
 touch "$BCNACONF"/bitcanna.conf
-RPCUSR="bitcannarpc"
 RPCPWD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
-echo "rpcuser=$RPCUSR" >> "$BCNACONF"/bitcanna.conf
-echo "rpcpassword=$RPCPWD" >> "$BCNACONF"/bitcanna.conf
-if [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then
+echo "rpcuser=bitcanna$USER
+rpcpassword=$RPCPWD
+port=$BCNAPORT
+listen=1
+server=1
+daemon=1
+txindex=1
+maxconnections=1000
+enablezeromint=0
+banscore=50" >> "$BCNACONF"/bitcanna.conf
+if [ "$choiz" == "p" ] || [ "$choiz" == "P" ] ;  then
+ echo "staking=1" >> "$BCNACONF"/bitcanna.conf
+elif [ "$choiz" == "m" ] || [ "$choiz" == "M" ] ;  then
  echo "staking=0" >> "$BCNACONF"/bitcanna.conf
 fi
 chmod 600 "$BCNACONF"/bitcanna.conf
@@ -489,14 +486,28 @@ echo -e "${green}\tProject Ver${grey}: ${bld}${bkwhite}$SCRPTVER${green}\n\tby${
 #### Start ####
 ###############
 colors
+case $(uname -m) in
+  i386|i686) echo -e "${grey}--> ${red}Architecture System NOT VALID - USE 64 bits ${grey}!!!\n${red}Exiting${grey}...${endc}" && sleep 1 && exit 1 ;;
+  arm) echo -e "${grey}--> ${yellow}Please${grey}, ${bkwhite}Get the Script dedicated to Raspberry ${grey}!!!" && sleep 1 && exit 1 ;;
+  x86_64) packages=("unzip" "zip") ;;
+  *) echo -e "${grey}--> ${red}Operating System Unknown ${grey}!!!\n${red}Exiting${grey}...${endc}" && sleep 1 && exit 1 ;;
+ esac
 varys
-dependencies
 if [[ "$EUID" -eq 0 ]]; then 
  echo -e "${grey}--> ${red}You are root ${grey}!!\n   ${yellow}Just NOT USE ROOT user ${grey}!!!\n      ${red}Exiting${grey}...${endc}" && sleep 0.5 && exit 1
 else
  MYSUDOER=$(sudo grep '^$USER' /etc/sudoers)
  if [[ "$MYSUDOER" -eq 0 ]]; then
-  echo -e "${grey}--> ${green}You are in sudoers file ${grey}!!!${bkwhite}" && sleep 0.2
+  sudo apt update > /dev/null 2>&1
+  for i in "${packages[@]}"
+  do
+   command -v "$i" > /dev/null 2>&1 || { 
+   echo -e >&2 "${grey}--> ${bkwhite}Package(s) ${green}$i ${bkwhite}required ${grey}!!!${bkwhite}\n";
+   sleep 0.2 ;
+   echo -e "${grey}--> ${bkwhite}Installing ${green}$i ${bkwhite}package ${grey}...${bkwhite}\n"; 
+   sudo apt install "$i" > /dev/null 2>&1 ; 
+   }
+  done
  else
   echo -e "${red}ERROR${grey}!!! ${bkwhite}User${grey}:${yellow}$USER ${bkwhite}is not a sudoer user\nExiting${grey}...${bkwhite}" && sleep 0.2 
   echo -e "${yellow}$USER user need sudoer privileges to set bitcannad and bitcanna-cli binaries ${grey}!!!${bkwhite}" && sleep 0.2
@@ -512,7 +523,6 @@ else
  history -cw
  echo -e "${endc}"
 fi
-
 if [ "$MYTERM" = "Y" ] || [ "$MYTERM" = "y" ]; then
  bash BCNA-Console.sh
 fi
